@@ -49,26 +49,25 @@ export async function parseRTIDocument(pdfBuffer) {
       "extracted_text": "full raw text of the document in original Hindi/English",
       "title": "8-10 word summary title in Hindi or English",
       "department": "विभाग का नाम (department name)",
-      "ministry": "मंत्रालय (parent ministry, if mentioned)",
-      "state": "राज्य (state name, or 'केंद्र सरकार' for central govt)",
-      "district": "जिला (district, if mentioned, else null)",
-      "area": "क्षेत्र (specific locality/area, if mentioned, else null)",
+      "state": "राज्य (state name in English, or 'केंद्र सरकार / Central' for central/union government RTIs)",
       "subject": "RTI का विषय — one sentence in the document's language",
-      "questions": ["प्रश्न 1", "प्रश्न 2"],
-      "response_summary": "उत्तर का सारांश if response is present, else null",
-      "response_status": "pending|responded|partial|rejected|appealed",
-      "date_filed": "YYYY-MM-DD or null",
-      "date_of_response": "YYYY-MM-DD or null",
-      "rti_act_sections": ["धारा numbers mentioned, e.g. धारा 6, धारा 7"],
+      "questions": ["EVERY question asked in the RTI, extracted verbatim — look for numbered lists, bullet points, and sentences ending with '?' throughout the entire document"],
+      "response_summary": "2-3 sentence summary of the official response if present, else null",
+      "response_full_text": "complete verbatim text of the official response section if present, else null",
+      "response_status": "full_response|partial_response|no_response",
+      "response_tables": [{"title": "table title or null", "headers": ["column1", "column2"], "rows": [["val1", "val2"]]}],
+      "date_filed": "YYYY-MM-DD — look for application date, filing date, dispatch date in various formats (DD/MM/YYYY, DD-MM-YYYY, Hindi dates), else null",
+      "date_of_response": "YYYY-MM-DD — look for response date, reply date, order date, else null",
       "tags": ["3-6 topic tags in Hindi or English, e.g. सड़क, भ्रष्टाचार, शिक्षा"],
       "language": "hindi|english|mixed"
     }
 
-    Rules:
+    Critical rules:
     - Preserve all Hindi text in Devanagari Unicode exactly as written
+    - questions: extract EVERY individual question — if you see a numbered/bulleted list of information requests, each item is a separate question. Do NOT combine questions. Do NOT leave questions blank.
+    - dates: search the entire document carefully — dates may appear near "दिनांक", "Date:", "आवेदन तिथि", "प्रेषण तिथि", "Reply dated" etc.
+    - state: for central government departments (Ministry, Commission, Board, Authority at national level), always use 'केंद्र सरकार / Central'
     - If a field is not found, return null for that field
-    - questions must be an array even if there is only one question
-    - tags should reflect the real-world topic (roads, water, education, etc.)
     - Return ONLY the JSON object, nothing else
   `;
 

@@ -181,21 +181,81 @@ router.post(
   }
 );
 
+
 // ---------------------------------------------------------------------------
-// GET /api/departments — list unique departments
+// GET /api/entries/:id/comments — get discussion comments
 // ---------------------------------------------------------------------------
-router.get("/departments", async (_req, res) => {
+router.get("/entries/:id/comments", async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from("rti_entries")
-      .select("department")
-      .not("department", "is", null)
-      .order("department");
-
+      .from("rti_comments")
+      .select("*")
+      .eq("rti_id", req.params.id)
+      .order("created_at", { ascending: true });
     if (error) return res.status(500).json({ error: error.message });
+    return res.json({ comments: data || [] });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
 
-    const unique = [...new Set((data || []).map((d) => d.department))];
-    return res.json({ departments: unique });
+// ---------------------------------------------------------------------------
+// POST /api/entries/:id/comments — add a comment
+// ---------------------------------------------------------------------------
+router.post("/entries/:id/comments", async (req, res) => {
+  try {
+    const { user_id, display_name, text } = req.body;
+    if (!text?.trim()) return res.status(400).json({ error: "text is required" });
+    const { data, error } = await supabase
+      .from("rti_comments")
+      .insert({ rti_id: req.params.id, user_id: user_id || null, display_name: display_name || "Anonymous", text: text.trim() })
+      .select()
+      .single();
+    if (error) return res.status(500).json({ error: error.message });
+    return res.json({ comment: data });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/entries/:id/helpful — toggle "this helped" vote
+// ---------------------------------------------------------------------------
+router.post("/entries/:id/helpful", async (req, res) => {
+  try {
+    const { user_id } = req.body;
+    if (!user_id) return res.status(400).json({ error: "user_id is required" });
+
+    const { data: existing } = await supabase
+      .from("rti_helpful")
+      .select("id")
+      .eq("rti_id", req.params.id)
+      .eq("user_id", user_id)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase.from("rti_helpful").delete().eq("id", existing.id);
+      return res.json({ helped: false });
+    } else {
+      await supabase.from("rti_helpful").insert({ rti_id: req.params.id, user_id });
+      return res.json({ helped: true });
+    }
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /api/entries/:id/helpful-count — get helpful count
+// ---------------------------------------------------------------------------
+router.get("/entries/:id/helpful-count", async (req, res) => {
+  try {
+    const { count, error } = await supabase
+      .from("rti_helpful")
+      .select("*", { count: "exact", head: true })
+      .eq("rti_id", req.params.id);
+    if (error) return res.status(500).json({ error: error.message });
+    return res.json({ count: count || 0 });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

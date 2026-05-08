@@ -2,59 +2,261 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Design Tokens ─────────────────────────────────────────────────────── */
+:root {
+  --canvas:        #EDEADE;
+  --surface:       #F4F2E8;
+  --glass:         rgba(255, 253, 245, 0.58);
+  --glass-hover:   rgba(255, 253, 245, 0.75);
+  --glass-border:  rgba(255, 255, 255, 0.85);
+  --rule:          rgba(0, 0, 0, 0.09);
+  --rule-strong:   rgba(0, 0, 0, 0.16);
+  --ink:           #1C1A24;
+  --ink-2:         #3E3B4A;
+  --ink-3:         #7A7888;
+  --ink-4:         #A8A6B4;
+  --accent:        #B8860B;
+  --accent-hover:  #9A6F08;
+  --accent-glass:  rgba(184, 134, 11, 0.10);
+  --accent-glow:   rgba(184, 134, 11, 0.28);
+  --green:         #4A7A3A;
+  --green-bg:      rgba(74, 122, 58, 0.12);
+  --amber:         #8B5E00;
+  --amber-bg:      rgba(139, 94, 0, 0.11);
+  --red:           #9B2C2C;
+  --red-bg:        rgba(155, 44, 44, 0.12);
+  --r-sm:          10px;
+  --r-md:          14px;
+  --r-lg:          20px;
+  --r-xl:          28px;
+}
+
+/* ─── Base ────────────────────────────────────────────────────────────────── */
 @layer base {
   body {
-    @apply font-ui text-gray-800 antialiased;
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: "Instrument Sans", "Noto Sans Devanagari", sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
+/* ─── Components ──────────────────────────────────────────────────────────── */
 @layer components {
+
+  /* Glass panels */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.90),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+      0 2px 8px rgba(0, 0, 0, 0.06),
+      0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Floating glass — lifts on hover */
+  .glass-float {
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.90),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+      0 4px 20px rgba(0, 0, 0, 0.08),
+      0 1px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .glass-float:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.90),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+      0 8px 24px rgba(0, 0, 0, 0.10),
+      0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  /* .card — floating glass card (replaces old white card) */
+  .card {
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-md);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.90),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+      0 2px 8px rgba(0, 0, 0, 0.06),
+      0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.90),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.04),
+      0 4px 20px rgba(0, 0, 0, 0.08),
+      0 1px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Primary button — mustard gold */
+  .btn-primary {
+    background-color: var(--accent);
+    color: #fff;
+    font-family: "Instrument Sans", sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--r-sm);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 2px 8px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    background-color: var(--accent-hover);
+    box-shadow: 0 4px 12px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Secondary button — ghost glass */
+  .btn-secondary {
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--ink-2);
+    font-family: "Instrument Sans", sans-serif;
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--rule-strong);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    text-decoration: none;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.80),
+      0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+  .btn-secondary:hover {
+    background: var(--glass-hover);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn-secondary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Input / select field */
+  .input-field {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 253, 245, 0.70);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--r-sm);
+    color: var(--ink);
+    font-family: "Instrument Sans", "Noto Sans Devanagari", sans-serif;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+  .input-field:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 0 0 3px var(--accent-glass);
+  }
+  .input-field::placeholder {
+    color: var(--ink-4);
+  }
+
+  /* DM Mono section labels */
+  .section-label {
+    font-family: "DM Mono", monospace;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* Mono utility */
+  .mono-text {
+    font-family: "DM Mono", monospace;
+  }
+
+  /* Hindi text */
   .hindi-text {
     font-family: "Noto Sans Devanagari", sans-serif;
     word-break: keep-all;
     overflow-wrap: break-word;
   }
 
-  .ui-text {
-    font-family: "IBM Plex Sans", sans-serif;
-  }
-
+  /* Status pill base — flat, no glass */
   .status-pill {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-  }
-
-  .btn-primary {
-    @apply bg-saffron-500 hover:bg-saffron-600 text-white font-medium px-5 py-2.5 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-saffron-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .btn-secondary {
-    @apply bg-white hover:bg-gray-50 text-gray-700 font-medium px-5 py-2.5 rounded-lg border border-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-saffron-400 focus:ring-offset-2;
-  }
-
-  .card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow;
-  }
-
-  .input-field {
-    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-saffron-400 focus:border-saffron-400 transition-colors;
-  }
-
-  .section-label {
-    @apply text-xs font-semibold text-gray-500 uppercase tracking-wider;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    border: 1px solid transparent;
+    white-space: nowrap;
   }
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+/* ─── Step card entrance ────────────────────────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
+
+/* ─── Floating particle animation ──────────────────────────────────────── */
+@keyframes floatUp {
+  0%   { transform: translateY(0px)    rotate(var(--p-rot, 0deg)); opacity: 0; }
+  18%  { opacity: 0.50; }
+  80%  { opacity: 0.50; }
+  100% { transform: translateY(-120px) rotate(var(--p-rot, 0deg)); opacity: 0; }
 }
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+.particle {
+  position: absolute;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  pointer-events: none;
+  animation: floatUp linear infinite;
+  white-space: nowrap;
+  will-change: transform, opacity;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }

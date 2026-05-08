@@ -25,3 +25,11 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+
+.claude
+
+# google auth json
+google-auth-json.json
+
+# run txt
+run.txt

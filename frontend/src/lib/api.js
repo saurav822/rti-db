@@ -8,13 +8,40 @@ async function handleResponse(res) {
   return data;
 }
 
+function authHeaders(token) {
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 // ---------------------------------------------------------------------------
-// Upload RTI PDF
+// Upload: Step 1 — Parse PDF (no DB insert)
+// ---------------------------------------------------------------------------
+export async function parseRTI(formData) {
+  const res = await fetch(`${BASE}/parse`, {
+    method: "POST",
+    body: formData,
+  });
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// Upload: Step 2 — Submit confirmed fields to DB
+// ---------------------------------------------------------------------------
+export async function submitRTI(payload, token) {
+  const res = await fetch(`${BASE}/entries/submit`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders(token) },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// Legacy: Upload RTI (one-shot, kept for compatibility)
 // ---------------------------------------------------------------------------
 export async function uploadRTI(formData) {
   const res = await fetch(`${BASE}/upload`, {
     method: "POST",
-    body: formData, // multipart — do NOT set Content-Type header
+    body: formData,
   });
   return handleResponse(res);
 }
@@ -59,7 +86,44 @@ export async function toggleUpvote(id, userId) {
 }
 
 // ---------------------------------------------------------------------------
-// Add response
+// "This helped" toggle
+// ---------------------------------------------------------------------------
+export async function toggleHelpful(id, userId) {
+  const res = await fetch(`${BASE}/entries/${id}/helpful`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id: userId }),
+  });
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// Get helpful count
+// ---------------------------------------------------------------------------
+export async function getHelpfulCount(id) {
+  const res = await fetch(`${BASE}/entries/${id}/helpful-count`);
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// Comments
+// ---------------------------------------------------------------------------
+export async function getComments(id) {
+  const res = await fetch(`${BASE}/entries/${id}/comments`);
+  return handleResponse(res);
+}
+
+export async function addComment(id, { user_id, display_name, text }) {
+  const res = await fetch(`${BASE}/entries/${id}/comments`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id, display_name, text }),
+  });
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// Add response (official/community)
 // ---------------------------------------------------------------------------
 export async function addResponse(id, formData) {
   const res = await fetch(`${BASE}/entries/${id}/response`, {
@@ -90,9 +154,24 @@ export async function getStats() {
 }
 
 // ---------------------------------------------------------------------------
-// List departments
+// Departments
 // ---------------------------------------------------------------------------
 export async function getDepartments() {
   const res = await fetch(`${BASE}/departments`);
+  return handleResponse(res);
+}
+
+export async function getDepartmentByName(name, state) {
+  const qs = new URLSearchParams({ name, state }).toString();
+  const res = await fetch(`${BASE}/departments/by-name?${qs}`);
+  return handleResponse(res);
+}
+
+export async function rateDepartment(deptId, { user_id, rating, rti_id }) {
+  const res = await fetch(`${BASE}/departments/${deptId}/rate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_id, rating, rti_id }),
+  });
   return handleResponse(res);
 }
