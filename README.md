@@ -1,4 +1,4 @@
-# RTI Commons — सूचना का अधिकार ज्ञानकोश
+# OpenRTI — सूचना का अधिकार ज्ञानकोश
 
 India's open RTI (Right to Information) knowledge base. Upload, search, and share RTI documents — primarily in Hindi (Devanagari script) — to reduce duplicate filings and build a public commons.
 
