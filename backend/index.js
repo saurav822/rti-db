@@ -12,19 +12,29 @@ import departmentsRouter from "./routes/departments.js";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust Vercel's reverse proxy so X-Forwarded-For is used for rate limiting
+app.set("trust proxy", 1);
+
 // ---------------------------------------------------------------------------
 // Middleware
 // ---------------------------------------------------------------------------
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   "http://localhost:5173",
+  "http://localhost:3001",
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, cb) => {
-      // Allow same-origin (Vercel serves frontend + backend on same domain)
-      if (!origin || allowedOrigins.some((o) => origin.startsWith(o))) {
+      // Allow same-origin requests (no Origin header) and whitelisted origins.
+      // On Vercel, frontend and backend share the same domain so origin will
+      // match FRONTEND_URL. Also allow *.vercel.app preview deployments.
+      if (
+        !origin ||
+        allowedOrigins.some((o) => origin.startsWith(o)) ||
+        /^https:\/\/[^.]+\.vercel\.app$/.test(origin)
+      ) {
         cb(null, true);
       } else {
         cb(new Error("Not allowed by CORS"));
