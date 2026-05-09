@@ -110,7 +110,7 @@ function UniquenessBar({ maxPct, searching, hasResult, t }) {
         )}
         <div
           className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-lg transition-all duration-500"
-          style={{ left: `calc(${markerLeft}% - 8px)`, backgroundColor: indicatorColor, border: "2px solid #fff", boxShadow: `0 0 0 3px ${indicatorColor}40` }}
+          style={{ left: `calc(${markerLeft}% - ${markerLeft * 0.16}px)`, backgroundColor: indicatorColor, border: "2px solid #fff", boxShadow: `0 0 0 3px ${indicatorColor}40` }}
         />
       </div>
 
