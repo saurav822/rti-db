@@ -317,7 +317,7 @@ export default function Layout() {
             </span>
           </div>
           <div className="flex items-center gap-4 text-xs" style={{ color: "var(--ink-4)" }}>
-            <a href="/about" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--accent)] transition-colors" style={{ color: "var(--accent)" }}>About</a>
+            <NavLink to="/about" className="hover:text-[var(--accent)] transition-colors" style={{ color: "var(--accent)" }}>About</NavLink>
             <span>© 2026</span>
           </div>
         </div>

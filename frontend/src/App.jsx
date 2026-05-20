@@ -10,6 +10,7 @@ import Browse from "./pages/Browse.jsx";
 import Login from "./pages/Login.jsx";
 import Profile from "./pages/Profile.jsx";
 import Departments from "./pages/Departments.jsx";
+import About from "./pages/About.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { LanguageProvider } from "./contexts/LanguageContext.jsx";
 
@@ -29,6 +30,7 @@ export default function App() {
               <Route path="login" element={<Login />} />
               <Route path="profile" element={<Profile />} />
               <Route path="departments" element={<Departments />} />
+              <Route path="about" element={<About />} />
             </Route>
           </Routes>
         </BrowserRouter>
