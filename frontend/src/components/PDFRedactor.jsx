@@ -91,10 +91,11 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
     const el = overlayRef.current;
     if (!el) return { x: 0, y: 0 };
     const bounds = el.getBoundingClientRect();
-    return { x: e.clientX - bounds.left, y: e.clientY - bounds.top };
+    const client = e.touches ? e.touches[0] : e;
+    return { x: client.clientX - bounds.left, y: client.clientY - bounds.top };
   }
 
-  function onMouseDown(e) {
+  function onPointerDown(e) {
     e.preventDefault();
     const pos = getPos(e);
     const pageRects = rects.filter((r) => r.pageNum === pageNum);
@@ -110,8 +111,9 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
     setLiveRect(null);
   }
 
-  function onMouseMove(e) {
+  function onPointerMove(e) {
     if (!drawing || !startPos) return;
+    e.preventDefault();
     const pos = getPos(e);
     setLiveRect({
       x: Math.min(startPos.x, pos.x),
@@ -121,7 +123,7 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
     });
   }
 
-  function onMouseUp() {
+  function onPointerUp() {
     if (!drawing) return;
     setDrawing(false);
     if (liveRect && liveRect.w > MIN_RECT_PX && liveRect.h > MIN_RECT_PX) {
@@ -246,11 +248,14 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
             <div
               ref={overlayRef}
               className="absolute inset-0"
-              style={{ cursor: "crosshair" }}
-              onMouseDown={onMouseDown}
-              onMouseMove={onMouseMove}
-              onMouseUp={onMouseUp}
-              onMouseLeave={onMouseUp}
+              style={{ cursor: "crosshair", touchAction: "none" }}
+              onMouseDown={onPointerDown}
+              onMouseMove={onPointerMove}
+              onMouseUp={onPointerUp}
+              onMouseLeave={onPointerUp}
+              onTouchStart={onPointerDown}
+              onTouchMove={onPointerMove}
+              onTouchEnd={onPointerUp}
             />
           </div>
         </div>

@@ -6,12 +6,6 @@ import { useT } from "../lib/i18n.js";
 const VALUES = ["Transparency", "Impartiality", "Participation", "Accountability"];
 const VALUES_HI = ["पारदर्शिता", "निष्पक्षता", "भागीदारी", "जवाबदेही"];
 
-const SOCIALS = [
-  { label: "Facebook", href: "https://facebook.com/charchagram/" },
-  { label: "X (Twitter)", href: "https://x.com/Charchagram_" },
-  { label: "Instagram", href: "https://instagram.com/__charchagram__/" },
-  { label: "YouTube", href: "https://youtube.com/@CharchagramCollective" },
-];
 
 const STEPS = [
   { n: "01", key_title: "about_step1_title", key_desc: "about_step1_desc", icon: "↑" },
@@ -210,11 +204,11 @@ export default function About() {
             <div className="card p-7 flex flex-col gap-5">
               <ContactRow label={t("about_contact_email")} icon="✉">
                 <a
-                  href="mailto:connect@charchagram.com"
+                  href="mailto:connect.charchagram@gmail.com"
                   className="text-sm font-medium transition-colors"
                   style={{ color: "var(--accent)" }}
                 >
-                  connect@charchagram.com
+                  connect.charchagram@gmail.com
                 </a>
               </ContactRow>
 
@@ -237,45 +231,29 @@ export default function About() {
               <ContactRow label={t("about_contact_address")} icon="⌖">
                 <span className="text-sm leading-snug" style={{ color: "var(--ink-2)" }}>
                   {lang === "hi"
-                    ? "चर्चा फाउंडेशन, 136बी, सनसिटी फ़्लोर्स, रोहतक, हरियाणा – 124001"
-                    : "Charcha Foundation, 136B, Sun City Floors, Rohtak, Haryana – 124001"}
+                    ? "फ्लैट नं. 304, पॉकेट 8, सेक्टर 12, द्वारका, N.S.I.T. द्वारका, नई दिल्ली – 110078"
+                    : "Flat No. 304, Pocket 8, Sector 12, Dwarka, N.S.I.T. Dwarka, New Delhi – 110078"}
                 </span>
               </ContactRow>
             </div>
 
-            {/* Social + CTA card */}
-            <div className="card p-7 flex flex-col gap-6">
-              <div>
-                <span className="section-label block mb-3">{t("about_contact_follow")}</span>
-                <div className="flex flex-col gap-2">
-                  {SOCIALS.map(({ label, href }) => (
-                    <a
-                      key={label}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm font-medium transition-colors hover:underline"
-                      style={{ color: "var(--ink-2)" }}
-                    >
-                      <span style={{ color: "var(--accent)" }}>↗</span>
-                      {label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-
+            {/* CTA card */}
+            <div className="card p-7 flex flex-col justify-center gap-4">
               <div
-                className="rounded-[var(--r-md)] p-4 mt-auto"
+                className="rounded-[var(--r-md)] p-6"
                 style={{ background: "var(--accent-glass)", border: "1px solid var(--accent-glow)" }}
               >
+                <p className="text-base leading-relaxed mb-1 font-semibold" style={{ color: "var(--ink)" }}>
+                  {lang === "hi" ? "हमसे जुड़ें" : "Get in touch"}
+                </p>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {lang === "hi"
-                    ? "कोई सुझाव, रिपोर्ट या सहयोग के लिए ईमेल करें।"
+                    ? "कोई सुझाव, बग रिपोर्ट या सहयोग के लिए ईमेल करें।"
                     : "For suggestions, bug reports, or collaboration — reach out over email."}
                 </p>
                 <a
-                  href="mailto:connect@charchagram.com"
-                  className="btn-primary inline-block mt-3 text-sm px-4 py-1.5"
+                  href="mailto:connect.charchagram@gmail.com"
+                  className="btn-primary inline-block mt-4 text-sm px-5 py-2"
                 >
                   {lang === "hi" ? "ईमेल भेजें →" : "Send an email →"}
                 </a>

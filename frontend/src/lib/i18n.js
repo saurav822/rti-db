@@ -10,6 +10,7 @@ export const translations = {
     nav_profile: "Profile",
     nav_my_rtis: "My RTIs",
     nav_sign_out: "Sign Out",
+    nav_about: "About",
 
     // Home
     home_title: "India's Open RTI Data Base",
@@ -289,11 +290,11 @@ export const translations = {
     about_step1_title: "Upload",
     about_step1_desc: "Upload your RTI application or response as a PDF. No account needed for browsing — login only to contribute.",
     about_step2_title: "AI Parses",
-    about_step2_desc: "Gemini 2.5 Flash reads the document, extracts questions, department, dates, and response status — in Hindi or English.",
+    about_step2_desc: "An LLM reads the document, extracts questions, department, dates, and response status — in Hindi or English.",
     about_step3_title: "Search & Discover",
     about_step3_desc: "Anyone can search the database by keyword or AI semantic search, find precedents, and learn from past RTIs across India.",
     about_org_title: "Built by Charcha Foundation",
-    about_org_desc: "Charcha Foundation is a Rohtak-based civic technology organisation making digital interventions for better governance, public policy, and transparency. Their mission: make democracy more transparent and accountable by bridging the gap between citizens and their representatives.",
+    about_org_desc: "Charcha Foundation is a Delhi-based civic technology organisation making digital interventions for better governance, public policy, and transparency. Their mission: make democracy more transparent and accountable by bridging the gap between citizens and their representatives.",
     about_org_values: "Core Values",
     about_initiative_label: "Key Initiative",
     about_contact_title: "Contact Us",
@@ -329,6 +330,7 @@ export const translations = {
     nav_profile: "प्रोफ़ाइल",
     nav_my_rtis: "मेरी RTIs",
     nav_sign_out: "साइन आउट",
+    nav_about: "परिचय",
 
     // Home
     home_title: "भारत का ओपन RTI डेटाबेस",
@@ -606,11 +608,11 @@ export const translations = {
     about_step1_title: "अपलोड करें",
     about_step1_desc: "अपनी RTI आवेदन या उत्तर PDF के रूप में अपलोड करें। ब्राउज़ करने के लिए लॉगिन की जरूरत नहीं — केवल योगदान के लिए।",
     about_step2_title: "AI पार्स करता है",
-    about_step2_desc: "Gemini 2.5 Flash दस्तावेज़ पढ़ता है, प्रश्न, विभाग, तिथियाँ और उत्तर की स्थिति निकालता है — हिंदी या अंग्रेज़ी में।",
+    about_step2_desc: "एक LLM दस्तावेज़ पढ़ता है, प्रश्न, विभाग, तिथियाँ और उत्तर की स्थिति निकालता है — हिंदी या अंग्रेज़ी में।",
     about_step3_title: "खोजें और जानें",
     about_step3_desc: "कोई भी कीवर्ड या AI सिमेंटिक खोज से डेटाबेस खोज सकता है, पुरानी RTIs से सीख सकता है और देशभर के अनुभव जान सकता है।",
     about_org_title: "Charcha Foundation द्वारा निर्मित",
-    about_org_desc: "Charcha Foundation रोहतक स्थित एक नागरिक प्रौद्योगिकी संगठन है जो बेहतर शासन, सार्वजनिक नीति और पारदर्शिता के लिए डिजिटल हस्तक्षेप करता है। उनका मिशन: नागरिकों और उनके प्रतिनिधियों के बीच की दूरी पाटकर लोकतंत्र को अधिक पारदर्शी और जवाबदेह बनाना।",
+    about_org_desc: "Charcha Foundation दिल्ली स्थित एक नागरिक प्रौद्योगिकी संगठन है जो बेहतर शासन, सार्वजनिक नीति और पारदर्शिता के लिए डिजिटल हस्तक्षेप करता है। उनका मिशन: नागरिकों और उनके प्रतिनिधियों के बीच की दूरी पाटकर लोकतंत्र को अधिक पारदर्शी और जवाबदेह बनाना।",
     about_org_values: "मूल मूल्य",
     about_initiative_label: "प्रमुख पहल",
     about_contact_title: "संपर्क करें",
