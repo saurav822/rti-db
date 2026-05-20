@@ -266,14 +266,14 @@ export default function Layout() {
 
         {/* Mobile nav dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-[var(--rule)] px-4 py-3 space-y-1" style={{ background: "var(--surface)" }}>
+          <div className="md:hidden border-t border-[var(--rule)] px-4 py-3 flex flex-col gap-1" style={{ background: "var(--surface)" }}>
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 end={link.end}
                 onClick={() => setMobileMenuOpen(false)}
-                className={navLinkClass}
+                className={({ isActive }) => `block ${navLinkClass({ isActive })}`}
               >
                 {t(link.key)}
               </NavLink>
