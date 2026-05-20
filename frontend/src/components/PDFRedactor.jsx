@@ -17,6 +17,8 @@ function Spinner({ className = "w-5 h-5" }) {
   );
 }
 
+const isTouchDevice = typeof window !== "undefined" && "ontouchstart" in window;
+
 export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t }) {
   const canvasRef = useRef(null);
   const overlayRef = useRef(null);
@@ -33,6 +35,8 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
   const [applying, setApplying] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [rendering, setRendering] = useState(false);
+  // Mobile: start in scroll mode so finger scrolls by default; switch to draw mode to place boxes
+  const [drawMode, setDrawMode] = useState(!isTouchDevice);
 
   useEffect(() => {
     let cancelled = false;
@@ -211,6 +215,35 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
         </div>
       )}
 
+      {/* Mobile mode toggle */}
+      {isTouchDevice && pdfDoc && (
+        <div className="flex items-center gap-2 mb-3 p-2 rounded-[var(--r-sm)]" style={{ background: "var(--glass)", border: "1px solid var(--rule)" }}>
+          <button
+            onClick={() => setDrawMode(false)}
+            className="flex-1 py-2 rounded-[var(--r-sm)] text-sm font-medium transition-all"
+            style={{
+              background: !drawMode ? "var(--ink)" : "transparent",
+              color: !drawMode ? "#fff" : "var(--ink-3)",
+            }}
+          >
+            🔍 Scroll
+          </button>
+          <button
+            onClick={() => setDrawMode(true)}
+            className="flex-1 py-2 rounded-[var(--r-sm)] text-sm font-medium transition-all"
+            style={{
+              background: drawMode ? "var(--accent)" : "transparent",
+              color: drawMode ? "#fff" : "var(--ink-3)",
+            }}
+          >
+            ✏️ Draw
+          </button>
+          <span className="text-xs ml-1 leading-tight" style={{ color: "var(--ink-4)", maxWidth: 100 }}>
+            {drawMode ? "Drag to draw · Tap box to delete" : "Scroll to position, then tap Draw"}
+          </span>
+        </div>
+      )}
+
       {/* Canvas area */}
       {!pdfDoc ? (
         <div className="flex items-center justify-center py-20 text-[var(--ink-4)] gap-3">
@@ -248,14 +281,14 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
             <div
               ref={overlayRef}
               className="absolute inset-0"
-              style={{ cursor: "crosshair", touchAction: "none" }}
+              style={{ cursor: drawMode ? "crosshair" : "default", touchAction: drawMode ? "none" : "auto" }}
               onMouseDown={onPointerDown}
               onMouseMove={onPointerMove}
               onMouseUp={onPointerUp}
               onMouseLeave={onPointerUp}
-              onTouchStart={onPointerDown}
-              onTouchMove={onPointerMove}
-              onTouchEnd={onPointerUp}
+              onTouchStart={drawMode ? onPointerDown : undefined}
+              onTouchMove={drawMode ? onPointerMove : undefined}
+              onTouchEnd={drawMode ? onPointerUp : undefined}
             />
           </div>
         </div>
