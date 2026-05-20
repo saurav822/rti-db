@@ -64,6 +64,35 @@ export default function Layout() {
               </span>
             </NavLink>
 
+            {/* ── Mobile lang toggle (right of logo) ── */}
+            <div
+              className="flex sm:hidden items-center p-0.5 rounded-md shrink-0"
+              style={{ background: "var(--rule)", gap: 1 }}
+            >
+              <button
+                onClick={() => setLang("en")}
+                className="rounded transition-all"
+                style={{
+                  fontSize: 10.5, fontFamily: "DM Mono, monospace", fontWeight: 500,
+                  letterSpacing: "0.04em", padding: "2px 7px",
+                  ...(lang === "en"
+                    ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
+                    : { background: "transparent", color: "var(--ink-4)" }),
+                }}
+              >EN</button>
+              <button
+                onClick={() => setLang("hi")}
+                className="rounded transition-all"
+                style={{
+                  fontSize: 10.5, fontFamily: "Noto Sans Devanagari, sans-serif", fontWeight: 500,
+                  padding: "2px 7px",
+                  ...(lang === "hi"
+                    ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
+                    : { background: "transparent", color: "var(--ink-4)" }),
+                }}
+              >हि</button>
+            </div>
+
             {/* ── Lang toggle (small, near logo) ── */}
             <div
               className="hidden sm:flex items-center p-0.5 rounded-md"
@@ -203,35 +232,6 @@ export default function Layout() {
                   Sign In
                 </NavLink>
               )}
-
-              {/* Mobile: lang toggle — visible only on mobile, in top nav */}
-              <div
-                className="flex sm:hidden items-center p-0.5 rounded-md shrink-0"
-                style={{ background: "var(--rule)", gap: 1 }}
-              >
-                <button
-                  onClick={() => setLang("en")}
-                  className="rounded transition-all"
-                  style={{
-                    fontSize: 10.5, fontFamily: "DM Mono, monospace", fontWeight: 500,
-                    letterSpacing: "0.04em", padding: "2px 7px",
-                    ...(lang === "en"
-                      ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
-                      : { background: "transparent", color: "var(--ink-4)" }),
-                  }}
-                >EN</button>
-                <button
-                  onClick={() => setLang("hi")}
-                  className="rounded transition-all"
-                  style={{
-                    fontSize: 10.5, fontFamily: "Noto Sans Devanagari, sans-serif", fontWeight: 500,
-                    padding: "2px 7px",
-                    ...(lang === "hi"
-                      ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
-                      : { background: "transparent", color: "var(--ink-4)" }),
-                  }}
-                >हि</button>
-              </div>
 
               {/* Mobile: upload button with label */}
               <NavLink

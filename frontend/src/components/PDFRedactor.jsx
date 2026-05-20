@@ -383,29 +383,40 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
           className="relative overflow-auto mb-2"
           style={{ maxHeight: "58vh", borderRadius: "var(--r-sm)", border: "1px solid var(--rule)", background: "var(--surface)" }}
         >
-          <div className="relative inline-block" style={{ userSelect: "none", zoom }}>
-            <canvas ref={canvasRef} className="block" />
-            {rendering && (
-              <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(244,242,232,0.6)" }}>
-                <Spinner className="w-6 h-6" />
-              </div>
-            )}
-            <svg className="absolute inset-0 pointer-events-none" style={{ width: viewport?.width, height: viewport?.height }}>
-              {pageRects.map((r, i) => <rect key={i} x={r.x} y={r.y} width={r.w} height={r.h} fill="black" />)}
-              {liveRect && (
-                <rect x={liveRect.x} y={liveRect.y} width={liveRect.w} height={liveRect.h}
-                  fill="rgba(0,0,0,0.5)" stroke="black" strokeWidth="1.5" strokeDasharray="4 2" />
-              )}
-            </svg>
+          {/* Size wrapper: tells the scroll container how large the zoomed content is */}
+          <div style={{
+            width: viewport ? viewport.width * zoom : "auto",
+            height: viewport ? viewport.height * zoom : "auto",
+            flexShrink: 0,
+          }}>
+            {/* Scale wrapper: visually zooms canvas + SVG so they stay perfectly aligned */}
             <div
-              ref={overlayRef}
-              className="absolute inset-0"
-              style={{ cursor: drawMode ? "crosshair" : "grab", touchAction: "none" }}
-              onMouseDown={onMouseDown}
-              onMouseMove={onMouseMove}
-              onMouseUp={onMouseUp}
-              onMouseLeave={onMouseUp}
-            />
+              className="relative inline-block"
+              style={{ userSelect: "none", transform: `scale(${zoom})`, transformOrigin: "top left" }}
+            >
+              <canvas ref={canvasRef} className="block" />
+              {rendering && (
+                <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(244,242,232,0.6)" }}>
+                  <Spinner className="w-6 h-6" />
+                </div>
+              )}
+              <svg className="absolute inset-0 pointer-events-none" style={{ width: viewport?.width, height: viewport?.height }}>
+                {pageRects.map((r, i) => <rect key={i} x={r.x} y={r.y} width={r.w} height={r.h} fill="black" />)}
+                {liveRect && (
+                  <rect x={liveRect.x} y={liveRect.y} width={liveRect.w} height={liveRect.h}
+                    fill="rgba(0,0,0,0.5)" stroke="black" strokeWidth="1.5" strokeDasharray="4 2" />
+                )}
+              </svg>
+              <div
+                ref={overlayRef}
+                className="absolute inset-0"
+                style={{ cursor: drawMode ? "crosshair" : "grab", touchAction: "none" }}
+                onMouseDown={onMouseDown}
+                onMouseMove={onMouseMove}
+                onMouseUp={onMouseUp}
+                onMouseLeave={onMouseUp}
+              />
+            </div>
           </div>
         </div>
       )}
