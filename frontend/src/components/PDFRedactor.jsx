@@ -5,8 +5,9 @@ import { PDFDocument, rgb } from "pdf-lib";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
-const RENDER_SCALE = 1.5;
+const BASE_SCALE = 1.5;
 const MIN_RECT_PX = 5;
+const isTouchDevice = typeof window !== "undefined" && "ontouchstart" in window;
 
 function Spinner({ className = "w-5 h-5" }) {
   return (
@@ -17,33 +18,65 @@ function Spinner({ className = "w-5 h-5" }) {
   );
 }
 
-const isTouchDevice = typeof window !== "undefined" && "ontouchstart" in window;
+function ScrollIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-3" />
+      <path d="M12 8l4 4-4 4M16 12H8" />
+    </svg>
+  );
+}
+
+function DrawIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+    </svg>
+  );
+}
 
 export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t }) {
   const canvasRef = useRef(null);
   const overlayRef = useRef(null);
+  const scrollContainerRef = useRef(null);
   const renderTaskRef = useRef(null);
+
+  // Refs for touch handlers (avoid stale closures in native event listeners)
+  const drawingRef = useRef(false);
+  const startPosRef = useRef(null);
+  const liveRectRef = useRef(null);
+  const pinchRef = useRef({ active: false, dist: 0, startZoom: 1 });
+  const lastTouchRef = useRef(null);
+  const drawModeRef = useRef(!isTouchDevice);
+  const zoomRef = useRef(1.0);
+  const rectsRef = useRef([]);
+  const pageNumRef = useRef(1);
 
   const [pdfDoc, setPdfDoc] = useState(null);
   const [pageNum, setPageNum] = useState(1);
   const [numPages, setNumPages] = useState(0);
   const [viewport, setViewport] = useState(null);
   const [rects, setRects] = useState([]);
-  const [drawing, setDrawing] = useState(false);
-  const [startPos, setStartPos] = useState(null);
   const [liveRect, setLiveRect] = useState(null);
   const [applying, setApplying] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [rendering, setRendering] = useState(false);
-  // Mobile: start in scroll mode so finger scrolls by default; switch to draw mode to place boxes
   const [drawMode, setDrawMode] = useState(!isTouchDevice);
+  const [zoom, setZoom] = useState(1.0);
 
+  // Keep refs in sync with state
+  useEffect(() => { drawModeRef.current = drawMode; }, [drawMode]);
+  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
+  useEffect(() => { rectsRef.current = rects; }, [rects]);
+  useEffect(() => { pageNumRef.current = pageNum; }, [pageNum]);
+
+  // Load PDF
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
-        const arrayBuffer = await file.arrayBuffer();
-        const doc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const buf = await file.arrayBuffer();
+        const doc = await pdfjsLib.getDocument({ data: buf }).promise;
         if (cancelled) return;
         setPdfDoc(doc);
         setNumPages(doc.numPages);
@@ -56,120 +89,214 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
     return () => { cancelled = true; };
   }, [file]);
 
+  // Render page
   useEffect(() => {
     if (!pdfDoc || !canvasRef.current) return;
     let cancelled = false;
     setRendering(true);
-
     async function render() {
       try {
-        if (renderTaskRef.current) {
-          renderTaskRef.current.cancel();
-          renderTaskRef.current = null;
-        }
+        if (renderTaskRef.current) { renderTaskRef.current.cancel(); renderTaskRef.current = null; }
         const page = await pdfDoc.getPage(pageNum);
         if (cancelled) return;
-        const vp = page.getViewport({ scale: RENDER_SCALE });
+        const vp = page.getViewport({ scale: BASE_SCALE });
         if (cancelled) return;
         setViewport(vp);
         const canvas = canvasRef.current;
         canvas.width = vp.width;
         canvas.height = vp.height;
-        const ctx = canvas.getContext("2d");
-        const task = page.render({ canvasContext: ctx, viewport: vp });
+        const task = page.render({ canvasContext: canvas.getContext("2d"), viewport: vp });
         renderTaskRef.current = task;
         await task.promise;
         if (!cancelled) setRendering(false);
       } catch (err) {
-        if (!cancelled && err?.name !== "RenderingCancelledException") {
-          console.error("PDF render error:", err);
-          setRendering(false);
-        }
+        if (!cancelled && err?.name !== "RenderingCancelledException") setRendering(false);
       }
     }
     render();
     return () => { cancelled = true; };
   }, [pdfDoc, pageNum]);
 
-  function getPos(e) {
-    const el = overlayRef.current;
-    if (!el) return { x: 0, y: 0 };
-    const bounds = el.getBoundingClientRect();
-    const client = e.touches ? e.touches[0] : e;
-    return { x: client.clientX - bounds.left, y: client.clientY - bounds.top };
+  // Native touch listeners — always attached, read all state via refs
+  useEffect(() => {
+    const overlay = overlayRef.current;
+    if (!overlay || !isTouchDevice) return;
+
+    function getCanvasPos(touch) {
+      const bounds = overlay.getBoundingClientRect();
+      return {
+        x: (touch.clientX - bounds.left) / zoomRef.current,
+        y: (touch.clientY - bounds.top) / zoomRef.current,
+      };
+    }
+
+    function pinchDist(touches) {
+      return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+    }
+
+    function handleTouchStart(e) {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        pinchRef.current = { active: true, dist: pinchDist(e.touches), startZoom: zoomRef.current };
+        drawingRef.current = false;
+        startPosRef.current = null;
+        setLiveRect(null); liveRectRef.current = null;
+        lastTouchRef.current = null;
+        return;
+      }
+      if (e.touches.length === 1) {
+        if (drawModeRef.current) {
+          e.preventDefault();
+          const pos = getCanvasPos(e.touches[0]);
+          // Tap existing box → delete it
+          const page = pageNumRef.current;
+          const current = rectsRef.current.filter(r => r.pageNum === page);
+          for (let i = current.length - 1; i >= 0; i--) {
+            const r = current[i];
+            if (pos.x >= r.x && pos.x <= r.x + r.w && pos.y >= r.y && pos.y <= r.y + r.h) {
+              setRects(prev => prev.filter(pr => pr !== r));
+              return;
+            }
+          }
+          drawingRef.current = true;
+          startPosRef.current = pos;
+          setLiveRect(null); liveRectRef.current = null;
+        } else {
+          lastTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+      }
+    }
+
+    function handleTouchMove(e) {
+      if (e.touches.length === 2 && pinchRef.current.active) {
+        e.preventDefault();
+        const ratio = pinchDist(e.touches) / pinchRef.current.dist;
+        const newZoom = Math.min(4, Math.max(0.5, pinchRef.current.startZoom * ratio));
+        zoomRef.current = newZoom;
+        setZoom(newZoom);
+        return;
+      }
+      if (e.touches.length === 1) {
+        if (drawModeRef.current && drawingRef.current && startPosRef.current) {
+          e.preventDefault();
+          const pos = getCanvasPos(e.touches[0]);
+          const sp = startPosRef.current;
+          const r = {
+            x: Math.min(sp.x, pos.x), y: Math.min(sp.y, pos.y),
+            w: Math.abs(pos.x - sp.x), h: Math.abs(pos.y - sp.y),
+          };
+          liveRectRef.current = r;
+          setLiveRect(r);
+        } else if (!drawModeRef.current && scrollContainerRef.current) {
+          // Manual pan in scroll mode
+          if (lastTouchRef.current) {
+            scrollContainerRef.current.scrollLeft += lastTouchRef.current.x - e.touches[0].clientX;
+            scrollContainerRef.current.scrollTop += lastTouchRef.current.y - e.touches[0].clientY;
+          }
+          lastTouchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+      }
+    }
+
+    function handleTouchEnd(e) {
+      if (e.touches.length < 2) pinchRef.current.active = false;
+      if (e.touches.length === 0) {
+        lastTouchRef.current = null;
+        if (drawModeRef.current && drawingRef.current) {
+          drawingRef.current = false;
+          const lr = liveRectRef.current;
+          if (lr && lr.w > MIN_RECT_PX && lr.h > MIN_RECT_PX) {
+            const pn = pageNumRef.current;
+            setRects(prev => [...prev, { ...lr, pageNum: pn }]);
+          }
+          setLiveRect(null); liveRectRef.current = null;
+          startPosRef.current = null;
+        }
+      }
+    }
+
+    overlay.addEventListener("touchstart", handleTouchStart, { passive: false });
+    overlay.addEventListener("touchmove", handleTouchMove, { passive: false });
+    overlay.addEventListener("touchend", handleTouchEnd, { passive: false });
+    return () => {
+      overlay.removeEventListener("touchstart", handleTouchStart);
+      overlay.removeEventListener("touchmove", handleTouchMove);
+      overlay.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [pdfDoc]); // attach once when PDF loads; all state read via refs
+
+  // Mouse handlers (desktop)
+  function getMousePos(e) {
+    const bounds = overlayRef.current?.getBoundingClientRect();
+    if (!bounds) return { x: 0, y: 0 };
+    return { x: (e.clientX - bounds.left) / zoom, y: (e.clientY - bounds.top) / zoom };
   }
 
-  function onPointerDown(e) {
+  function onMouseDown(e) {
     e.preventDefault();
-    const pos = getPos(e);
-    const pageRects = rects.filter((r) => r.pageNum === pageNum);
-    for (let i = pageRects.length - 1; i >= 0; i--) {
-      const r = pageRects[i];
+    const pos = getMousePos(e);
+    const pr = rects.filter(r => r.pageNum === pageNum);
+    for (let i = pr.length - 1; i >= 0; i--) {
+      const r = pr[i];
       if (pos.x >= r.x && pos.x <= r.x + r.w && pos.y >= r.y && pos.y <= r.y + r.h) {
-        setRects((prev) => prev.filter((pr) => pr !== r));
+        setRects(prev => prev.filter(p => p !== r));
         return;
       }
     }
-    setDrawing(true);
-    setStartPos(pos);
+    drawingRef.current = true;
+    startPosRef.current = pos;
     setLiveRect(null);
   }
 
-  function onPointerMove(e) {
-    if (!drawing || !startPos) return;
-    e.preventDefault();
-    const pos = getPos(e);
-    setLiveRect({
-      x: Math.min(startPos.x, pos.x),
-      y: Math.min(startPos.y, pos.y),
-      w: Math.abs(pos.x - startPos.x),
-      h: Math.abs(pos.y - startPos.y),
-    });
+  function onMouseMove(e) {
+    if (!drawingRef.current || !startPosRef.current) return;
+    const pos = getMousePos(e);
+    const sp = startPosRef.current;
+    const r = { x: Math.min(sp.x, pos.x), y: Math.min(sp.y, pos.y), w: Math.abs(pos.x - sp.x), h: Math.abs(pos.y - sp.y) };
+    liveRectRef.current = r;
+    setLiveRect(r);
   }
 
-  function onPointerUp() {
-    if (!drawing) return;
-    setDrawing(false);
-    if (liveRect && liveRect.w > MIN_RECT_PX && liveRect.h > MIN_RECT_PX) {
-      setRects((prev) => [...prev, { ...liveRect, pageNum }]);
+  function onMouseUp() {
+    if (!drawingRef.current) return;
+    drawingRef.current = false;
+    const lr = liveRectRef.current;
+    if (lr && lr.w > MIN_RECT_PX && lr.h > MIN_RECT_PX) {
+      setRects(prev => [...prev, { ...lr, pageNum }]);
     }
-    setLiveRect(null);
-    setStartPos(null);
+    setLiveRect(null); liveRectRef.current = null;
+    startPosRef.current = null;
   }
 
   async function handleApply() {
     if (rects.length === 0) return;
     setApplying(true);
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdfLibDoc = await PDFDocument.load(arrayBuffer);
-
+      const pdfLibDoc = await PDFDocument.load(await file.arrayBuffer());
       for (const rect of rects) {
         const page = pdfLibDoc.getPage(rect.pageNum - 1);
-        const { height: pageHeight } = page.getSize();
-        const pdfX = rect.x / RENDER_SCALE;
-        const pdfY = pageHeight - (rect.y + rect.h) / RENDER_SCALE;
-        const pdfW = rect.w / RENDER_SCALE;
-        const pdfH = rect.h / RENDER_SCALE;
-        page.drawRectangle({ x: pdfX, y: pdfY, width: pdfW, height: pdfH, color: rgb(0, 0, 0), opacity: 1 });
+        const { height: ph } = page.getSize();
+        page.drawRectangle({
+          x: rect.x / BASE_SCALE,
+          y: ph - (rect.y + rect.h) / BASE_SCALE,
+          width: rect.w / BASE_SCALE,
+          height: rect.h / BASE_SCALE,
+          color: rgb(0, 0, 0), opacity: 1,
+        });
       }
-
-      const modifiedBytes = await pdfLibDoc.save();
-      const redactedFile = new File([modifiedBytes], file.name, { type: "application/pdf" });
-      onSave(redactedFile);
+      const bytes = await pdfLibDoc.save();
+      onSave(new File([bytes], file.name, { type: "application/pdf" }));
     } catch (err) {
       console.error("Redaction failed:", err);
       setApplying(false);
     }
   }
 
-  const pageRects = rects.filter((r) => r.pageNum === pageNum);
-  const totalRects = rects.length;
+  const pageRects = rects.filter(r => r.pageNum === pageNum);
 
   if (loadError) {
     return (
       <div className="card p-8 text-center">
-        <div className="text-4xl mb-3">⚠️</div>
         <p className="font-medium mb-2 text-[var(--ink)]">{t("redact_load_error")}</p>
         <button onClick={onSkip} className="btn-primary mt-4">{t("redact_skip")}</button>
       </div>
@@ -178,141 +305,124 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
 
   return (
     <div className="card p-6">
-      {/* Header */}
       <h2 className="text-lg font-semibold text-[var(--ink)] mb-1 hindi-text">{t("redact_title")}</h2>
       <p className="text-sm text-[var(--ink-3)] mb-4 hindi-text">{t("redact_subtitle")}</p>
 
-      {/* Toolbar */}
       {pdfDoc && (
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          {/* Page nav */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPageNum((p) => Math.max(1, p - 1))}
-              disabled={pageNum === 1}
-              className="btn-secondary py-1 px-3 text-sm disabled:opacity-40"
-            >
+            <button onClick={() => setPageNum(p => Math.max(1, p - 1))} disabled={pageNum === 1} className="btn-secondary py-1 px-3 text-sm disabled:opacity-40">
               ← {t("redact_prev")}
             </button>
-            <span className="text-sm text-[var(--ink-3)] mono-text">
+            <span className="text-sm mono-text" style={{ color: "var(--ink-3)" }}>
               {t("redact_page_of", { n: pageNum, total: numPages })}
             </span>
-            <button
-              onClick={() => setPageNum((p) => Math.min(numPages, p + 1))}
-              disabled={pageNum === numPages}
-              className="btn-secondary py-1 px-3 text-sm disabled:opacity-40"
-            >
+            <button onClick={() => setPageNum(p => Math.min(numPages, p + 1))} disabled={pageNum === numPages} className="btn-secondary py-1 px-3 text-sm disabled:opacity-40">
               {t("redact_next")} →
             </button>
           </div>
-          {totalRects > 0 && (
-            <span
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full mono-text"
-              style={{ background: "var(--ink)", color: "#fff" }}
-            >
-              ▪ {t("redact_count", { n: totalRects })}
-            </span>
-          )}
+          {/* Zoom controls + rect count */}
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => setZoom(z => Math.max(0.5, parseFloat((z - 0.25).toFixed(2))))} className="btn-secondary w-7 h-7 flex items-center justify-center font-bold p-0 text-base">−</button>
+            <span className="mono-text text-xs w-10 text-center" style={{ color: "var(--ink-3)" }}>{Math.round(zoom * 100)}%</span>
+            <button onClick={() => setZoom(z => Math.min(4, parseFloat((z + 0.25).toFixed(2))))} className="btn-secondary w-7 h-7 flex items-center justify-center font-bold p-0 text-base">+</button>
+            {rects.length > 0 && (
+              <span className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full mono-text ml-1" style={{ background: "var(--ink)", color: "#fff" }}>
+                ▪ {t("redact_count", { n: rects.length })}
+              </span>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Mobile mode toggle */}
+      {/* Mobile: Scroll / Draw toggle */}
       {isTouchDevice && pdfDoc && (
-        <div className="flex items-center gap-2 mb-3 p-2 rounded-[var(--r-sm)]" style={{ background: "var(--glass)", border: "1px solid var(--rule)" }}>
-          <button
-            onClick={() => setDrawMode(false)}
-            className="flex-1 py-2 rounded-[var(--r-sm)] text-sm font-medium transition-all"
-            style={{
-              background: !drawMode ? "var(--ink)" : "transparent",
-              color: !drawMode ? "#fff" : "var(--ink-3)",
-            }}
-          >
-            🔍 Scroll
-          </button>
-          <button
-            onClick={() => setDrawMode(true)}
-            className="flex-1 py-2 rounded-[var(--r-sm)] text-sm font-medium transition-all"
-            style={{
-              background: drawMode ? "var(--accent)" : "transparent",
-              color: drawMode ? "#fff" : "var(--ink-3)",
-            }}
-          >
-            ✏️ Draw
-          </button>
-          <span className="text-xs ml-1 leading-tight" style={{ color: "var(--ink-4)", maxWidth: 100 }}>
-            {drawMode ? "Drag to draw · Tap box to delete" : "Scroll to position, then tap Draw"}
-          </span>
-        </div>
+        <>
+          <div className="flex items-center gap-1 mb-2 p-1 rounded-[var(--r-sm)]" style={{ background: "var(--rule)" }}>
+            <button
+              onClick={() => setDrawMode(false)}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-[var(--r-sm)] text-sm font-medium transition-all hindi-text"
+              style={{
+                background: !drawMode ? "var(--surface)" : "transparent",
+                color: !drawMode ? "var(--ink)" : "var(--ink-4)",
+                boxShadow: !drawMode ? "0 1px 3px rgba(0,0,0,0.12)" : "none",
+              }}
+            >
+              <ScrollIcon />
+              {t("redact_mode_scroll")}
+            </button>
+            <button
+              onClick={() => setDrawMode(true)}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-[var(--r-sm)] text-sm font-medium transition-all hindi-text"
+              style={{
+                background: drawMode ? "var(--accent)" : "transparent",
+                color: drawMode ? "#fff" : "var(--ink-4)",
+                boxShadow: drawMode ? "0 1px 4px rgba(184,134,11,0.3)" : "none",
+              }}
+            >
+              <DrawIcon />
+              {t("redact_mode_draw")}
+            </button>
+          </div>
+          <p className="text-xs mb-3 hindi-text" style={{ color: "var(--ink-4)" }}>
+            {drawMode ? t("redact_draw_hint") : t("redact_scroll_hint")}
+          </p>
+        </>
       )}
 
-      {/* Canvas area */}
+      {/* Canvas */}
       {!pdfDoc ? (
-        <div className="flex items-center justify-center py-20 text-[var(--ink-4)] gap-3">
-          <Spinner className="w-6 h-6" style={{ color: "var(--accent)" }} />
+        <div className="flex items-center justify-center py-20 gap-3" style={{ color: "var(--ink-4)" }}>
+          <Spinner className="w-6 h-6" />
           <span className="text-sm hindi-text">{t("redact_loading")}</span>
         </div>
       ) : (
         <div
+          ref={scrollContainerRef}
           className="relative overflow-auto mb-2"
           style={{ maxHeight: "58vh", borderRadius: "var(--r-sm)", border: "1px solid var(--rule)", background: "var(--surface)" }}
         >
-          <div className="relative inline-block" style={{ userSelect: "none" }}>
+          <div className="relative inline-block" style={{ userSelect: "none", zoom }}>
             <canvas ref={canvasRef} className="block" />
             {rendering && (
               <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(244,242,232,0.6)" }}>
-                <Spinner className="w-6 h-6" style={{ color: "var(--accent)" }} />
+                <Spinner className="w-6 h-6" />
               </div>
             )}
-            <svg
-              className="absolute inset-0 pointer-events-none"
-              style={{ width: viewport?.width, height: viewport?.height }}
-            >
-              {pageRects.map((r, i) => (
-                <rect key={i} x={r.x} y={r.y} width={r.w} height={r.h} fill="black" />
-              ))}
+            <svg className="absolute inset-0 pointer-events-none" style={{ width: viewport?.width, height: viewport?.height }}>
+              {pageRects.map((r, i) => <rect key={i} x={r.x} y={r.y} width={r.w} height={r.h} fill="black" />)}
               {liveRect && (
-                <rect
-                  x={liveRect.x} y={liveRect.y}
-                  width={liveRect.w} height={liveRect.h}
-                  fill="rgba(0,0,0,0.55)"
-                  stroke="black" strokeWidth="1.5" strokeDasharray="4 2"
-                />
+                <rect x={liveRect.x} y={liveRect.y} width={liveRect.w} height={liveRect.h}
+                  fill="rgba(0,0,0,0.5)" stroke="black" strokeWidth="1.5" strokeDasharray="4 2" />
               )}
             </svg>
             <div
               ref={overlayRef}
               className="absolute inset-0"
-              style={{ cursor: drawMode ? "crosshair" : "default", touchAction: drawMode ? "none" : "auto" }}
-              onMouseDown={onPointerDown}
-              onMouseMove={onPointerMove}
-              onMouseUp={onPointerUp}
-              onMouseLeave={onPointerUp}
-              onTouchStart={drawMode ? onPointerDown : undefined}
-              onTouchMove={drawMode ? onPointerMove : undefined}
-              onTouchEnd={drawMode ? onPointerUp : undefined}
+              style={{ cursor: drawMode ? "crosshair" : "grab", touchAction: "none" }}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
+              onMouseUp={onMouseUp}
+              onMouseLeave={onMouseUp}
             />
           </div>
         </div>
       )}
 
-      {pdfDoc && (
-        <p className="text-xs text-[var(--ink-4)] mb-4 hindi-text">{t("redact_tip")}</p>
-      )}
+      {pdfDoc && <p className="text-xs mb-4 hindi-text" style={{ color: "var(--ink-4)" }}>{t("redact_tip")}</p>}
+
       {mandatory && rects.length === 0 && pdfDoc && (
-        <div
-          className="mb-4 flex items-center gap-2 px-3 py-2 text-xs rounded-[var(--r-sm)] hindi-text"
-          style={{ border: "1px solid rgba(139,94,0,0.30)", background: "var(--amber-bg)", color: "var(--amber)" }}
-        >
+        <div className="mb-4 flex items-center gap-2 px-3 py-2 text-xs rounded-[var(--r-sm)] hindi-text"
+          style={{ border: "1px solid rgba(139,94,0,0.30)", background: "var(--accent-glass)", color: "var(--accent)" }}>
           <span>🔒</span>
           <span>{t("redact_mandatory_hint")}</span>
         </div>
       )}
 
-      {/* Actions */}
       <div className="flex items-center justify-between">
         {!mandatory && (
-          <button onClick={onSkip} className="btn-secondary hindi-text text-sm">
-            {t("redact_skip_optional")}
-          </button>
+          <button onClick={onSkip} className="btn-secondary hindi-text text-sm">{t("redact_skip_optional")}</button>
         )}
         <button
           onClick={handleApply}
@@ -320,15 +430,8 @@ export default function PDFRedactor({ file, onSave, onSkip, mandatory = false, t
           className={`btn-primary disabled:opacity-50 hindi-text ${mandatory ? "w-full" : ""}`}
         >
           {applying ? (
-            <span className="flex items-center gap-2">
-              <Spinner className="w-4 h-4" />
-              {t("redact_applying")}
-            </span>
-          ) : (
-            rects.length > 0
-              ? `${t("redact_apply")} (${rects.length})`
-              : t("redact_apply_hint")
-          )}
+            <span className="flex items-center gap-2"><Spinner className="w-4 h-4" />{t("redact_applying")}</span>
+          ) : rects.length > 0 ? `${t("redact_apply")} (${rects.length})` : t("redact_apply_hint")}
         </button>
       </div>
     </div>

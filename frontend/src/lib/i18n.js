@@ -85,6 +85,10 @@ export const translations = {
     redact_loading: "Loading PDF preview...",
     redact_load_error: "Could not preview this PDF. You can still upload it as-is.",
     redact_mandatory_hint: "Draw at least one black box to hide your personal details before continuing.",
+    redact_mode_scroll: "Scroll",
+    redact_mode_draw: "Draw",
+    redact_scroll_hint: "Scroll to position · Pinch to zoom in/out",
+    redact_draw_hint: "Drag finger to draw box · Tap existing box to delete",
 
     // Browse
     browse_title: "Browse RTI Database",
@@ -405,6 +409,10 @@ export const translations = {
     redact_loading: "PDF प्रीव्यू लोड हो रही है...",
     redact_load_error: "इस PDF का प्रीव्यू नहीं हो सका। आप इसे वैसे भी अपलोड कर सकते हैं।",
     redact_mandatory_hint: "जारी रखने से पहले कम से कम एक काला बॉक्स बनाकर अपनी व्यक्तिगत जानकारी छुपाएं।",
+    redact_mode_scroll: "स्क्रॉल",
+    redact_mode_draw: "बनाएं",
+    redact_scroll_hint: "स्थिति के लिए स्क्रॉल करें · ज़ूम के लिए दो उंगलियों से पिंच करें",
+    redact_draw_hint: "बॉक्स बनाने के लिए खींचें · हटाने के लिए बॉक्स पर टैप करें",
 
     // Browse
     browse_title: "RTI डेटाबेस ब्राउज़ करें",
