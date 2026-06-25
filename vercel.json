@@ -5,6 +5,7 @@
     { "source": "/api/:path*", "destination": "/api/index" },
     { "source": "/health", "destination": "/api/index" },
     { "source": "/r/:id", "destination": "/api/index" },
+    { "source": "/s/:id", "destination": "/api/index" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "functions": {
