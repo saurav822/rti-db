@@ -361,7 +361,7 @@ router.post("/file-rti/drafts/:id/generate-card", async (req, res) => {
       return res.status(400).json({ error: "Draft has no subject" });
     }
 
-    const buffer = await generateShareCard(draft.draft_subject);
+    const buffer = generateShareCard();
 
     const filename = `share-cards/${id}.png`;
     const { error: uploadError } = await supabase.storage
