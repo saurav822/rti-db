@@ -73,6 +73,20 @@ app.get("/r/:id", async (req, res) => {
   res.redirect(301, data.filed_pdf_url);
 });
 
+// Short-link redirect: /s/:draftId → share_card_url
+app.get("/s/:id", async (req, res) => {
+  const { data, error } = await supabase
+    .from("rti_drafts")
+    .select("share_card_url")
+    .eq("id", req.params.id)
+    .single();
+
+  if (error || !data?.share_card_url) {
+    return res.status(404).send("Not found");
+  }
+  res.redirect(301, data.share_card_url);
+});
+
 // Health check
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 

@@ -153,38 +153,6 @@ export default function About() {
                 ))}
               </div>
             </div>
-
-            {/* CharchaGram callout */}
-            <div
-              className="rounded-[var(--r-md)] p-5"
-              style={{ background: "var(--glass)", border: "1px solid var(--rule)" }}
-            >
-              <span className="section-label block mb-2">{t("about_initiative_label")}</span>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                  <span className="font-semibold text-base" style={{ color: "var(--ink)" }}>
-                    CharchaGram
-                  </span>
-                  <span className="mx-2" style={{ color: "var(--rule-strong)" }}>—</span>
-                  <span className="text-sm italic" style={{ color: "var(--ink-3)" }}>
-                    "Discussions into Accountability"
-                  </span>
-                  <p className="text-sm mt-1" style={{ color: "var(--ink-3)" }}>
-                    {lang === "hi"
-                      ? "चुनाव पारदर्शिता के लिए नागरिक जुड़ाव मंच — उम्मीदवार जानकारी और जन-संवाद"
-                      : "Electoral transparency platform — candidate information and civic Q&A for informed voters"}
-                  </p>
-                </div>
-                <a
-                  href="https://www.charchagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary text-sm px-4 py-1.5 whitespace-nowrap flex-shrink-0"
-                >
-                  Visit ↗
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </section>

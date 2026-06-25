@@ -543,17 +543,18 @@ export default function DraftRTI() {
     const fileRtiUrl = "https://www.charchagram.com/file-rti";
     const filedDate = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 
+    const shortCardUrl = `https://www.charchagram.com/s/${savedDraftId}`;
     const cardLine = (includeCard && shareCardUrl)
       ? draftLang === "hi"
-        ? `\n\n*दूसरों को भी पूछने की प्रेरणा दें — अपनी RTI कहानी शेयर करें:*\n${shareCardUrl}`
-        : `\n\n*Inspire others to ask — share your RTI story:*\n${shareCardUrl}`
+        ? `\n\n*दूसरों को भी पूछने की प्रेरणा दें — अपनी RTI कहानी शेयर करें:*\n${shortCardUrl}`
+        : `\n\n*Inspire others to ask — share your RTI story on Instagram:*\n${shortCardUrl}`
       : "";
 
     const shortPdfUrl = `https://www.charchagram.com/r/${savedDraftId}`;
 
     const message = draftLang === "hi"
-      ? `*RTI दाखिल कर दी गई!*\n\n_सूचना का अधिकार अधिनियम, 2005 के तहत आपकी ओर से RTI दाखिल की गई है।_\n\n*विभाग:* ${dept}${state ? ` (${state})` : ""}\n*विषय:* ${editedSubject}\n*दिनांक:* ${filedDate}\n\n*आपकी दाखिल RTI यहाँ देखें:*\n${shortPdfUrl}${cardLine}\n\n*खुद RTI दाखिल करना चाहते हैं?*\n${fileRtiUrl}\n\n_#RTI #SachJannaHaHamara_`
-      : `*Your RTI has been filed!*\n\n_An RTI was filed on your behalf under the Right to Information Act, 2005._\n\n*Department:* ${dept}${state ? ` (${state})` : ""}\n*Subject:* ${editedSubject}\n*Filed on:* ${filedDate}\n\n*View your filed RTI here:*\n${shortPdfUrl}${cardLine}\n\n*Want to file your own RTI?*\n${fileRtiUrl}\n\n_#RTI #ActiveDemocracy_`;
+      ? `*RTI दाखिल कर दी गई!*\n\n_सूचना का अधिकार अधिनियम, 2005 के तहत आपकी ओर से RTI दाखिल की गई है।_\n\n*विभाग:* ${dept}${state ? ` (${state})` : ""}\n*विषय:* ${editedSubject}\n*दिनांक:* ${filedDate}\n\n*आपकी दाखिल RTI यहाँ देखें:*\n${shortPdfUrl}${cardLine}\n\n*खुद RTI दाखिल करना चाहते हैं?*\n${fileRtiUrl}\n\nFollow us on Instagram: instagram.com/__charchagram__\n\n_#RTI #SachJannaHaHamara_`
+      : `*Your RTI has been filed!*\n\n_An RTI was filed on your behalf under the Right to Information Act, 2005._\n\n*Department:* ${dept}${state ? ` (${state})` : ""}\n*Subject:* ${editedSubject}\n*Filed on:* ${filedDate}\n\n*View your filed RTI here:*\n${shortPdfUrl}${cardLine}\n\n*Want to file your own RTI?*\n${fileRtiUrl}\n\nFollow us on Instagram: instagram.com/__charchagram__\n\n_#RTI #ActiveDemocracy_`;
 
     const url = waPhone
       ? `https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`
