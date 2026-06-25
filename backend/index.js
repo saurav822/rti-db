@@ -8,6 +8,7 @@ import searchRouter from "./routes/search.js";
 import entriesRouter from "./routes/entries.js";
 import statsRouter from "./routes/stats.js";
 import departmentsRouter from "./routes/departments.js";
+import filertIRouter from "./routes/filerti.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -55,6 +56,7 @@ app.use("/api", searchRouter);
 app.use("/api", entriesRouter);
 app.use("/api", statsRouter);
 app.use("/api", departmentsRouter);
+app.use("/api", filertIRouter);
 
 // Health check
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
