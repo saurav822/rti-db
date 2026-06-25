@@ -1,4 +1,10 @@
 const BASE = import.meta.env.VITE_API_BASE_URL || "/api";
+export const API_BASE = BASE;
+
+export const LOCAL_RUNNER_KEY = "rti_local_runner_url";
+export function getLocalRunnerBase() {
+  return (typeof localStorage !== "undefined" && localStorage.getItem(LOCAL_RUNNER_KEY)) || null;
+}
 
 async function handleResponse(res) {
   const data = await res.json();
@@ -164,6 +170,150 @@ export async function getDepartments() {
 export async function getDepartmentByName(name, state) {
   const qs = new URLSearchParams({ name, state }).toString();
   const res = await fetch(`${BASE}/departments/by-name?${qs}`);
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// File RTI — Clarifying questions
+// ---------------------------------------------------------------------------
+export async function getRTIClarifyingQuestions(query) {
+  const res = await fetch(`${BASE}/file-rti/clarify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// File RTI — Generate draft
+// ---------------------------------------------------------------------------
+export async function generateRTIDraftAPI(query, clarifications, language) {
+  const res = await fetch(`${BASE}/file-rti/generate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, clarifications, language }),
+  });
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// File RTI — Save draft
+// ---------------------------------------------------------------------------
+export async function saveRTIDraft(payload) {
+  const res = await fetch(`${BASE}/file-rti/drafts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// File RTI — Get user's saved drafts
+// ---------------------------------------------------------------------------
+export async function getRTIDrafts(userId) {
+  const res = await fetch(`${BASE}/file-rti/drafts?user_id=${encodeURIComponent(userId)}`);
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// File RTI — Update an existing draft (override)
+// ---------------------------------------------------------------------------
+export async function updateRTIDraft(id, payload) {
+  const res = await fetch(`${BASE}/file-rti/drafts/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// File RTI — Upload the filed PDF for a saved draft
+// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// File RTI — Get a single draft by ID
+// ---------------------------------------------------------------------------
+export async function getRTIDraftById(id) {
+  const res = await fetch(`${BASE}/file-rti/drafts/${encodeURIComponent(id)}`);
+  return handleResponse(res);
+}
+
+export async function generateRTIShareCard(draftId) {
+  const res = await fetch(`${BASE}/file-rti/drafts/${encodeURIComponent(draftId)}/generate-card`, {
+    method: "POST",
+  });
+  return handleResponse(res);
+}
+
+export async function uploadFiledRTIPDF(draftId, file) {
+  const formData = new FormData();
+  formData.append("pdf", file);
+  const res = await fetch(`${BASE}/file-rti/drafts/${encodeURIComponent(draftId)}/upload-pdf`, {
+    method: "POST",
+    body: formData,
+  });
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// File RTI — Get all portals
+// ---------------------------------------------------------------------------
+export async function getRTIPortals() {
+  const res = await fetch(`${BASE}/file-rti/portals`);
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// File RTI — All ministries + authorities mirroring rtionline.gov.in dropdowns
+// ---------------------------------------------------------------------------
+export async function getRTIAuthorities() {
+  const res = await fetch(`${BASE}/file-rti/authorities`);
+  return handleResponse(res);
+}
+
+// ---------------------------------------------------------------------------
+// File RTI — Launch autofill script + stream/continue controls
+// ---------------------------------------------------------------------------
+export async function continueAutofill(draftId) {
+  const res = await fetch(`${getLocalRunnerBase() || BASE}/file-rti/drafts/${encodeURIComponent(draftId)}/autofill/continue`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
+  return handleResponse(res);
+}
+
+export async function triggerAutofill(draftId, useCaptchaAi = true, userEmail = "") {
+  const res = await fetch(`${getLocalRunnerBase() || BASE}/file-rti/drafts/${encodeURIComponent(draftId)}/autofill`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ use_captcha_ai: useCaptchaAi, user_email: userEmail }),
+  });
+  return handleResponse(res);
+}
+
+export async function removeFiledPDF(draftId) {
+  const res = await fetch(`${BASE}/file-rti/drafts/${encodeURIComponent(draftId)}/pdf`, {
+    method: "DELETE",
+  });
+  return handleResponse(res);
+}
+
+export async function triggerAutofetch(draftId, useCaptchaAi = true, userEmail = "") {
+  const res = await fetch(`${getLocalRunnerBase() || BASE}/file-rti/drafts/${encodeURIComponent(draftId)}/autofetch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ use_captcha_ai: useCaptchaAi, user_email: userEmail }),
+  });
+  return handleResponse(res);
+}
+
+export async function continueAutofetch(draftId) {
+  const res = await fetch(`${getLocalRunnerBase() || BASE}/file-rti/drafts/${encodeURIComponent(draftId)}/autofetch/continue`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
   return handleResponse(res);
 }
 

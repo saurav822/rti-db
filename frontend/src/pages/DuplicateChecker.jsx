@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import StatusPill from "../components/StatusPill.jsx";
 import TagPill from "../components/TagPill.jsx";
 import { checkDuplicate } from "../lib/api.js";
 import { useLanguage } from "../contexts/LanguageContext.jsx";
 import { useT, displayState } from "../lib/i18n.js";
+import { useAuth } from "../contexts/AuthContext.jsx";
 
 const MIN_CHARS = 30;
 const DEBOUNCE_MS = 700;
 
-function Spinner({ className = "w-4 h-4" }) {
+// ── Shared small components ───────────────────────────────────────────────
+
+function Spinner({ className = "w-4 h-4", style }) {
   return (
-    <svg className={`animate-spin ${className}`} fill="none" viewBox="0 0 24 24">
+    <svg className={`animate-spin ${className}`} fill="none" viewBox="0 0 24 24" style={style}>
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
     </svg>
@@ -36,11 +39,11 @@ function ScanIcon() {
     </svg>
   );
 }
-function ReviewIcon() {
+function DraftIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--accent)" }}>
-      <path d="M9 12l2 2 4-4" />
-      <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
     </svg>
   );
 }
@@ -53,6 +56,8 @@ function WarningIcon() {
     </svg>
   );
 }
+
+// ── Uniqueness bar ────────────────────────────────────────────────────────
 
 function UniquenessBar({ maxPct, searching, hasResult, t }) {
   let statusLabel, subLabel, indicatorColor, textColor;
@@ -99,8 +104,6 @@ function UniquenessBar({ maxPct, searching, hasResult, t }) {
           {statusLabel}
         </span>
       </div>
-
-      {/* Gradient bar */}
       <div className="relative h-2.5 rounded-full mb-1"
         style={{ background: "linear-gradient(to right, #4A7A3A 0%, #8B5E00 50%, #9B2C2C 100%)" }}>
         {searching && (
@@ -113,22 +116,17 @@ function UniquenessBar({ maxPct, searching, hasResult, t }) {
           style={{ left: `calc(${markerLeft}% - ${markerLeft * 0.16}px)`, backgroundColor: indicatorColor, border: "2px solid #fff", boxShadow: `0 0 0 3px ${indicatorColor}40` }}
         />
       </div>
-
-      {/* Axis labels */}
       <div className="flex justify-between mt-1 mb-3">
         <span className="section-label hindi-text">{t("dup_unique_label")}</span>
         <span className="section-label hindi-text">{t("dup_duplicate_label")}</span>
       </div>
-
       <div className="text-sm text-center min-h-[1.5rem] hindi-text transition-all duration-300" style={{ color: textColor }}>
         {searching ? (
           <span className="flex items-center justify-center gap-2">
             <Spinner />
             {t("dup_meter_scanning")}
           </span>
-        ) : subLabel ? (
-          subLabel
-        ) : (
+        ) : subLabel ? subLabel : (
           <span className="text-[var(--ink-4)]">{t("dup_results_hint", { n: MIN_CHARS })}</span>
         )}
       </div>
@@ -168,13 +166,19 @@ function SimilarityCircle({ similarity }) {
   );
 }
 
+// ── Main component ────────────────────────────────────────────────────────
+
 export default function DuplicateChecker() {
   const { lang } = useLanguage();
   const t = useT(lang);
-  const [text, setText] = useState("");
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const [text, setText] = useState(searchParams.get("q") || "");
   const [searching, setSearching] = useState(false);
   const [matches, setMatches] = useState(null);
-  const [error, setError] = useState("");
+  const [dupError, setDupError] = useState("");
   const debounceRef = useRef(null);
 
   const charsLeft = Math.max(0, MIN_CHARS - text.length);
@@ -183,6 +187,7 @@ export default function DuplicateChecker() {
     ? Math.round(Math.max(...matches.map(m => m.similarity || 0)) * 100)
     : hasResult ? 0 : null;
 
+  // Live duplicate check
   useEffect(() => {
     const trimmed = text.trim();
     if (trimmed.length < MIN_CHARS) {
@@ -197,9 +202,9 @@ export default function DuplicateChecker() {
       try {
         const data = await checkDuplicate(trimmed);
         setMatches(data.matches || []);
-        setError("");
+        setDupError("");
       } catch (err) {
-        setError(err.message);
+        setDupError(err.message);
       } finally {
         setSearching(false);
       }
@@ -209,7 +214,7 @@ export default function DuplicateChecker() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Hero header with radial glow */}
+      {/* Hero */}
       <div className="mb-8 text-center relative">
         <div
           className="absolute inset-x-0 top-0 h-32 pointer-events-none -mt-8"
@@ -224,23 +229,17 @@ export default function DuplicateChecker() {
         {[
           { Icon: PasteIcon,  step: "1", text: t("dup_step1"), delay: "0s"    },
           { Icon: ScanIcon,   step: "2", text: t("dup_step2"), delay: "0.15s" },
-          { Icon: ReviewIcon, step: "3", text: t("dup_step3"), delay: "0.3s"  },
+          { Icon: DraftIcon,  step: "3", text: t("dup_step3"), delay: "0.3s"  },
         ].map(({ Icon, step, text: stepText, delay }) => (
           <div
             key={step}
             className="card p-4 text-center"
             style={{ animation: `fadeSlideUp 0.4s ease both`, animationDelay: delay }}
           >
-            <div
-              className="w-12 h-12 rounded-[var(--r-md)] flex items-center justify-center mx-auto mb-3"
-              style={{ background: "var(--accent-glass)" }}
-            >
+            <div className="w-12 h-12 rounded-[var(--r-md)] flex items-center justify-center mx-auto mb-3" style={{ background: "var(--accent-glass)" }}>
               <Icon />
             </div>
-            <div
-              className="w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center mx-auto mb-1.5 mono-text"
-              style={{ background: "var(--accent)", color: "#fff" }}
-            >{step}</div>
+            <div className="w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center mx-auto mb-1.5 mono-text" style={{ background: "var(--accent)", color: "#fff" }}>{step}</div>
             <p className="text-xs text-[var(--ink-3)] hindi-text leading-snug">{stepText}</p>
           </div>
         ))}
@@ -263,7 +262,7 @@ export default function DuplicateChecker() {
             className="input-field hindi-text resize-none flex-1 text-sm leading-relaxed mb-3"
             autoFocus
           />
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center justify-between text-xs mb-3">
             <span className="text-[var(--ink-3)] hindi-text">{t("dup_ai_hint")}</span>
             {charsLeft > 0 ? (
               <span className="mono-text font-medium" style={{ color: "var(--ink-4)" }}>
@@ -276,11 +275,49 @@ export default function DuplicateChecker() {
               </span>
             )}
           </div>
+
+          {/* Draft RTI button */}
+          {text.trim().length >= MIN_CHARS && (
+            <div
+              className="rounded-[var(--r-md)] p-4 flex flex-col gap-3"
+              style={{ background: "var(--accent-glass)", border: "1px solid rgba(184,134,11,0.25)" }}
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-[var(--r-sm)] flex items-center justify-center shrink-0" style={{ background: "var(--accent)", marginTop: 2 }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold hindi-text" style={{ color: "var(--accent)" }}>{t("file_draft_btn")}</p>
+                  <p className="text-xs hindi-text mt-0.5" style={{ color: "var(--ink-3)" }}>
+                    {lang === "hi" ? "AI से पूर्ण RTI आवेदन बनाएं" : "Generate a complete RTI application with AI"}
+                  </p>
+                </div>
+              </div>
+              {user ? (
+                <button
+                  onClick={() => navigate(`/draft-rti?q=${encodeURIComponent(text.trim())}`)}
+                  className="btn-primary w-full py-2.5 text-sm"
+                >
+                  {t("file_draft_btn")} →
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  className="btn-primary w-full py-2.5 text-sm text-center block"
+                  style={{ textDecoration: "none" }}
+                >
+                  {lang === "hi" ? "मसौदा बनाने के लिए लॉगिन करें →" : "Login to draft RTI →"}
+                </Link>
+              )}
+            </div>
+          )}
         </div>
 
         {/* RIGHT — Results panel */}
         <div className="flex flex-col gap-3">
-          {/* Empty state */}
           {!hasResult && !searching && (
             <div
               className="glass flex-1 flex flex-col items-center justify-center py-16 text-center border-dashed"
@@ -292,7 +329,6 @@ export default function DuplicateChecker() {
             </div>
           )}
 
-          {/* Skeleton while searching */}
           {searching && !hasResult && (
             <div className="space-y-3">
               <SkeletonCard />
@@ -301,14 +337,12 @@ export default function DuplicateChecker() {
             </div>
           )}
 
-          {/* Error */}
-          {error && (
+          {dupError && (
             <div className="rounded-[var(--r-sm)] p-4 text-sm" style={{ border: "1px solid rgba(155,44,44,0.25)", background: "var(--red-bg)", color: "var(--red)" }}>
-              {t("search_error_prefix")} {error}
+              {t("search_error_prefix")} {dupError}
             </div>
           )}
 
-          {/* No matches */}
           {hasResult && matches.length === 0 && !searching && (
             <div className="card p-8 text-center flex-1 flex flex-col items-center justify-center">
               <div className="text-4xl mb-3">✅</div>
@@ -318,7 +352,6 @@ export default function DuplicateChecker() {
             </div>
           )}
 
-          {/* Matches */}
           {hasResult && matches.length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
@@ -381,6 +414,7 @@ export default function DuplicateChecker() {
           )}
         </div>
       </div>
+
     </div>
   );
 }

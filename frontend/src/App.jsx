@@ -6,6 +6,7 @@ import Upload from "./pages/Upload.jsx";
 import Search from "./pages/Search.jsx";
 import RTIDetail from "./pages/RTIDetail.jsx";
 import DuplicateChecker from "./pages/DuplicateChecker.jsx";
+import DraftRTI from "./pages/DraftRTI.jsx";
 import Browse from "./pages/Browse.jsx";
 import Login from "./pages/Login.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -26,6 +27,8 @@ export default function App() {
               <Route path="search" element={<Search />} />
               <Route path="rti/:id" element={<RTIDetail />} />
               <Route path="check" element={<DuplicateChecker />} />
+              <Route path="file-rti" element={<DuplicateChecker />} />
+              <Route path="draft-rti" element={<DraftRTI />} />
               <Route path="browse" element={<Browse />} />
               <Route path="login" element={<Login />} />
               <Route path="profile" element={<Profile />} />

@@ -8,7 +8,7 @@ const navLinks = [
   { to: "/", key: "nav_home", end: true },
   { to: "/browse", key: "nav_browse" },
   { to: "/departments", key: "nav_departments" },
-  { to: "/check", key: "nav_duplicate_check" },
+  { to: "/file-rti", key: "nav_duplicate_check" },
   { to: "/about", key: "nav_about" },
 ];
 
