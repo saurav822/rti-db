@@ -206,6 +206,8 @@ export default function Profile() {
   const [loadingUploads, setLoadingUploads] = useState(false);
   const [drafts, setDrafts] = useState([]);
   const [loadingDrafts, setLoadingDrafts] = useState(false);
+  const [draftsExpanded, setDraftsExpanded] = useState(true);
+  const [contactsExpanded, setContactsExpanded] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
@@ -280,61 +282,89 @@ export default function Profile() {
         </button>
       </div>
 
-      {/* ── Contact Info ── */}
-      {!loadingDrafts && contactGroups.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-base font-semibold text-[var(--ink)] hindi-text mb-3">
-            {lang === "hi" ? "संपर्क जानकारी" : "Saved Contact Info"}
-            <span className="ml-2 mono-text text-sm font-normal" style={{ color: "var(--ink-4)" }}>({contactGroups.length})</span>
-          </h2>
-          <div className="space-y-3">
-            {contactGroups.map((contact) => (
-              <ContactCard key={`${contact.name}||${contact.phone}`} contact={contact} lang={lang} />
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* ── My RTI Drafts ── */}
-      <div className="mb-10">
+      <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-[var(--ink)] hindi-text">
-            {t("profile_my_drafts")}
-            {!loadingDrafts && drafts.length > 0 && (
-              <span className="ml-2 mono-text text-sm font-normal" style={{ color: "var(--ink-4)" }}>({drafts.length})</span>
-            )}
-          </h2>
+          <button
+            onClick={() => setDraftsExpanded((v) => !v)}
+            className="flex items-center gap-2 text-left group"
+          >
+            <h2 className="text-base font-semibold text-[var(--ink)] hindi-text">
+              {t("profile_my_drafts")}
+              {!loadingDrafts && drafts.length > 0 && (
+                <span className="ml-2 mono-text text-sm font-normal" style={{ color: "var(--ink-4)" }}>({drafts.length})</span>
+              )}
+            </h2>
+            <svg
+              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round"
+              style={{ color: "var(--ink-4)", transition: "transform 0.2s", transform: draftsExpanded ? "rotate(0deg)" : "rotate(-90deg)", flexShrink: 0 }}
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
           <Link to="/file-rti" className="text-xs font-medium" style={{ color: "var(--accent)" }}>
             {t("profile_draft_new")} →
           </Link>
         </div>
 
-        {loadingDrafts ? (
-          <div className="space-y-4">
-            {[...Array(2)].map((_, i) => (
-              <div key={i} className="card p-5 animate-pulse space-y-3">
-                <div className="h-4 rounded w-2/3" style={{ background: "var(--rule)" }} />
-                <div className="h-3 rounded w-full" style={{ background: "var(--rule)" }} />
-                <div className="h-3 rounded w-1/2" style={{ background: "var(--rule)" }} />
-              </div>
-            ))}
-          </div>
-        ) : drafts.length > 0 ? (
-          <div className="space-y-3">
-            {drafts.map((draft) => (
-              <DraftCard key={draft.id} draft={draft} lang={lang} />
-            ))}
-          </div>
-        ) : (
-          <div className="card p-8 text-center">
-            <div className="text-3xl mb-3">📝</div>
-            <p className="text-sm hindi-text text-[var(--ink-3)] mb-4">{t("profile_no_drafts")}</p>
-            <Link to="/file-rti" className="btn-primary inline-block">
-              {t("profile_draft_new")}
-            </Link>
-          </div>
+        {draftsExpanded && (
+          loadingDrafts ? (
+            <div className="space-y-4">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="card p-5 animate-pulse space-y-3">
+                  <div className="h-4 rounded w-2/3" style={{ background: "var(--rule)" }} />
+                  <div className="h-3 rounded w-full" style={{ background: "var(--rule)" }} />
+                  <div className="h-3 rounded w-1/2" style={{ background: "var(--rule)" }} />
+                </div>
+              ))}
+            </div>
+          ) : drafts.length > 0 ? (
+            <div className="space-y-3">
+              {drafts.map((draft) => (
+                <DraftCard key={draft.id} draft={draft} lang={lang} />
+              ))}
+            </div>
+          ) : (
+            <div className="card p-8 text-center">
+              <div className="text-3xl mb-3">📝</div>
+              <p className="text-sm hindi-text text-[var(--ink-3)] mb-4">{t("profile_no_drafts")}</p>
+              <Link to="/file-rti" className="btn-primary inline-block">
+                {t("profile_draft_new")}
+              </Link>
+            </div>
+          )
         )}
       </div>
+
+      {/* ── Contact Info ── */}
+      {!loadingDrafts && contactGroups.length > 0 && (
+        <div className="mb-8">
+          <button
+            onClick={() => setContactsExpanded((v) => !v)}
+            className="flex items-center gap-2 text-left mb-3 group"
+          >
+            <h2 className="text-base font-semibold text-[var(--ink)] hindi-text">
+              {lang === "hi" ? "संपर्क जानकारी" : "Saved Contact Info"}
+              <span className="ml-2 mono-text text-sm font-normal" style={{ color: "var(--ink-4)" }}>({contactGroups.length})</span>
+            </h2>
+            <svg
+              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round"
+              style={{ color: "var(--ink-4)", transition: "transform 0.2s", transform: contactsExpanded ? "rotate(0deg)" : "rotate(-90deg)", flexShrink: 0 }}
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+          {contactsExpanded && (
+            <div className="space-y-3">
+              {contactGroups.map((contact) => (
+                <ContactCard key={`${contact.name}||${contact.phone}`} contact={contact} lang={lang} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── My Uploads ── */}
       <h2 className="text-base font-semibold text-[var(--ink)] mb-4">{t("profile_my_uploads")} ({uploads.length})</h2>

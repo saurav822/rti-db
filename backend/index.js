@@ -9,6 +9,7 @@ import entriesRouter from "./routes/entries.js";
 import statsRouter from "./routes/stats.js";
 import departmentsRouter from "./routes/departments.js";
 import filertIRouter from "./routes/filerti.js";
+import supabase from "./lib/supabase.js";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -57,6 +58,20 @@ app.use("/api", entriesRouter);
 app.use("/api", statsRouter);
 app.use("/api", departmentsRouter);
 app.use("/api", filertIRouter);
+
+// Short-link redirect: /r/:draftId → filed_pdf_url
+app.get("/r/:id", async (req, res) => {
+  const { data, error } = await supabase
+    .from("rti_drafts")
+    .select("filed_pdf_url")
+    .eq("id", req.params.id)
+    .single();
+
+  if (error || !data?.filed_pdf_url) {
+    return res.status(404).send("Not found");
+  }
+  res.redirect(301, data.filed_pdf_url);
+});
 
 // Health check
 app.get("/health", (_req, res) => res.json({ status: "ok" }));

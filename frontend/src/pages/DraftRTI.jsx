@@ -172,6 +172,7 @@ export default function DraftRTI() {
   const [generatingCard, setGeneratingCard] = useState(false);
   const [shareCardUrl, setShareCardUrl] = useState(null);
   const [includeCard, setIncludeCard] = useState(true);
+  const [overridePhone, setOverridePhone] = useState("");
   const [useCaptchaAI, setUseCaptchaAI] = useState(true);
   const [autoFillLaunching, setAutoFillLaunching] = useState(false);
   const [autoFillError, setAutoFillError] = useState("");
@@ -533,12 +534,13 @@ export default function DraftRTI() {
   }
 
   function sendToWhatsApp() {
-    const digits = (applicant.phone || "").replace(/\D/g, "");
+    const rawPhone = overridePhone.trim() || applicant.phone || "";
+    const digits = rawPhone.replace(/\D/g, "");
     const waPhone = digits.length === 10 ? `91${digits}` : digits;
 
     const dept = draft?.department || "";
     const state = draft?.detected_state || "";
-    const fileRtiUrl = `${window.location.origin}/file-rti`;
+    const fileRtiUrl = "https://www.charchagram.com/file-rti";
     const filedDate = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 
     const cardLine = (includeCard && shareCardUrl)
@@ -547,9 +549,11 @@ export default function DraftRTI() {
         : `\n\n*Inspire others to ask — share your RTI story:*\n${shareCardUrl}`
       : "";
 
+    const shortPdfUrl = `https://www.charchagram.com/r/${savedDraftId}`;
+
     const message = draftLang === "hi"
-      ? `*RTI दाखिल कर दी गई!*\n\n_सूचना का अधिकार अधिनियम, 2005 के तहत आपकी ओर से RTI दाखिल की गई है।_\n\n*विभाग:* ${dept}${state ? ` (${state})` : ""}\n*विषय:* ${editedSubject}\n*दिनांक:* ${filedDate}\n\n*आपकी दाखिल RTI यहाँ देखें:*\n${filedPdfUrl}${cardLine}\n\n*खुद RTI दाखिल करना चाहते हैं?*\n${fileRtiUrl}\n\n_#RTI #SachJannaHaHamara_`
-      : `*Your RTI has been filed!*\n\n_An RTI was filed on your behalf under the Right to Information Act, 2005._\n\n*Department:* ${dept}${state ? ` (${state})` : ""}\n*Subject:* ${editedSubject}\n*Filed on:* ${filedDate}\n\n*View your filed RTI here:*\n${filedPdfUrl}${cardLine}\n\n*Want to file your own RTI?*\n${fileRtiUrl}\n\n_#RTI #ActiveDemocracy_`;
+      ? `*RTI दाखिल कर दी गई!*\n\n_सूचना का अधिकार अधिनियम, 2005 के तहत आपकी ओर से RTI दाखिल की गई है।_\n\n*विभाग:* ${dept}${state ? ` (${state})` : ""}\n*विषय:* ${editedSubject}\n*दिनांक:* ${filedDate}\n\n*आपकी दाखिल RTI यहाँ देखें:*\n${shortPdfUrl}${cardLine}\n\n*खुद RTI दाखिल करना चाहते हैं?*\n${fileRtiUrl}\n\n_#RTI #SachJannaHaHamara_`
+      : `*Your RTI has been filed!*\n\n_An RTI was filed on your behalf under the Right to Information Act, 2005._\n\n*Department:* ${dept}${state ? ` (${state})` : ""}\n*Subject:* ${editedSubject}\n*Filed on:* ${filedDate}\n\n*View your filed RTI here:*\n${shortPdfUrl}${cardLine}\n\n*Want to file your own RTI?*\n${fileRtiUrl}\n\n_#RTI #ActiveDemocracy_`;
 
     const url = waPhone
       ? `https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`
@@ -1380,6 +1384,21 @@ export default function DraftRTI() {
                   )}
 
                   {/* Step 3: WhatsApp send */}
+                  <div>
+                    <p className="text-xs mb-1.5" style={{ color: "var(--ink-4)" }}>
+                      {lang === "hi" ? "किसी और नंबर पर भेजना है?" : "Send to a different number?"}
+                    </p>
+                    <input
+                      type="tel"
+                      placeholder={applicant.phone
+                        ? (lang === "hi" ? `डिफ़ॉल्ट: ${applicant.phone}` : `Default: ${applicant.phone}`)
+                        : (lang === "hi" ? "फ़ोन नंबर डालें" : "Enter phone number")}
+                      value={overridePhone}
+                      onChange={(e) => setOverridePhone(e.target.value)}
+                      className="w-full px-3 py-2 rounded-[var(--r-sm)] text-sm"
+                      style={{ background: "var(--glass)", border: "1px solid var(--rule-strong)", color: "var(--ink)", outline: "none" }}
+                    />
+                  </div>
                   <button
                     onClick={sendToWhatsApp}
                     className="flex items-center gap-2.5 w-full justify-center px-4 py-2.5 rounded-[var(--r-sm)] text-sm font-semibold transition-all"
@@ -1390,7 +1409,7 @@ export default function DraftRTI() {
                     <WhatsAppIcon />
                     {lang === "hi" ? "WhatsApp पर शेयर करें" : "Share via WhatsApp"}
                   </button>
-                  {!applicant.phone && (
+                  {!applicant.phone && !overridePhone && (
                     <p className="text-xs text-center" style={{ color: "var(--ink-4)" }}>
                       {lang === "hi" ? "संपर्क नंबर जोड़ें तो सीधे भेजा जाएगा" : "Add a phone number in contact info to send directly"}
                     </p>
