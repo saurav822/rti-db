@@ -28,9 +28,16 @@ Thumbs.db
 
 .claude
 
+# Python autofill script — venv, cache, and local secrets
+backend/python/autofill/.venv/
+backend/python/autofill/rti-automation/
+backend/python/autofill/__pycache__/
+backend/python/autofill/.env
+
 # google auth json
 google-auth-json.json
 
 # run txt
 run.txt
 .vercel
+
