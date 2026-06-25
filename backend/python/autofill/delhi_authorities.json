@@ -1,0 +1,892 @@
+{
+  "source": "rtionline.delhi.gov.in — pio_app_details.php (public PIO/Appellate Authority list)",
+  "scraped_at": "2026-06-25",
+  "note": "Delhi RTI portal uses a single-level Public Authority dropdown (select[name=MinistryId]). No Ministry->Department AJAX layer like the central portal.",
+  "total_authorities": 221,
+  "authorities": [
+    {
+      "id": "6",
+      "label": "A.U.Tibbia College and allied units"
+    },
+    {
+      "id": "198",
+      "label": "Acharya Narendra Dev College"
+    },
+    {
+      "id": "45",
+      "label": "Acharya Shree Bhikshu Hospital"
+    },
+    {
+      "id": "199",
+      "label": "Aditi Mahavidyalaya"
+    },
+    {
+      "id": "4",
+      "label": "Administrative Reforms Department"
+    },
+    {
+      "id": "132",
+      "label": "Ambedkar Institute of Advance Communication Technologies and Research"
+    },
+    {
+      "id": "83",
+      "label": "Ambedkar Institute of Technology"
+    },
+    {
+      "id": "251",
+      "label": "Ambedkar Nagar Hospital"
+    },
+    {
+      "id": "8",
+      "label": "Archaeological Department"
+    },
+    {
+      "id": "9",
+      "label": "Archives Department"
+    },
+    {
+      "id": "5",
+      "label": "Art, Culture and Language Department"
+    },
+    {
+      "id": "7",
+      "label": "Aruna Asaf Ali Hospital"
+    },
+    {
+      "id": "84",
+      "label": "Aryabhat Institute of Technology"
+    },
+    {
+      "id": "34",
+      "label": "Attar Sain Jain Eye Hospital"
+    },
+    {
+      "id": "200",
+      "label": "B.R. Ambedkar College"
+    },
+    {
+      "id": "35",
+      "label": "Babu Jagjivan Ram Memorial Hospital"
+    },
+    {
+      "id": "201",
+      "label": "Bhagini Nivedita College"
+    },
+    {
+      "id": "36",
+      "label": "Bhagwan Mahavir Hospital"
+    },
+    {
+      "id": "85",
+      "label": "Bhai Parmanand Institute of Business Studies"
+    },
+    {
+      "id": "86",
+      "label": "Bhaskaracharya College of Applied Sciences"
+    },
+    {
+      "id": "87",
+      "label": "Board of Homeopathic System of Medicines"
+    },
+    {
+      "id": "88",
+      "label": "Board of Technical Education"
+    },
+    {
+      "id": "15",
+      "label": "Central Jail"
+    },
+    {
+      "id": "221",
+      "label": "Centralised Accident and Trauma Services"
+    },
+    {
+      "id": "89",
+      "label": "Chacha Nehru Super Speciality Children Hospital"
+    },
+    {
+      "id": "90",
+      "label": "Chaudhary Brahm Prakash Ayurved Charak Sansthan"
+    },
+    {
+      "id": "193",
+      "label": "Chaudhary Brahm Prakash Engineering College"
+    },
+    {
+      "id": "17",
+      "label": "Chief Electoral Office"
+    },
+    {
+      "id": "12",
+      "label": "Chief Ministers Office"
+    },
+    {
+      "id": "14",
+      "label": "Chief Secretary Office"
+    },
+    {
+      "id": "16",
+      "label": "Chit Fund"
+    },
+    {
+      "id": "18",
+      "label": "College of Art"
+    },
+    {
+      "id": "93",
+      "label": "Commission for OBC"
+    },
+    {
+      "id": "19",
+      "label": "Conservator of Forest Department"
+    },
+    {
+      "id": "94",
+      "label": "DCC Wholesale Stores Ltd"
+    },
+    {
+      "id": "22",
+      "label": "DDU Hospital"
+    },
+    {
+      "id": "95",
+      "label": "Deen Dayal Upadhyaya College"
+    },
+    {
+      "id": "211",
+      "label": "Deep Chand Bandhu Hospital"
+    },
+    {
+      "id": "96",
+      "label": "Delhi Agriculture Marketing. Board"
+    },
+    {
+      "id": "97",
+      "label": "Delhi Bhartiya Chikitsa Parishad"
+    },
+    {
+      "id": "250",
+      "label": "Delhi Building and Other Construction Workers Welfare Board"
+    },
+    {
+      "id": "192",
+      "label": "Delhi Cantonment Board"
+    },
+    {
+      "id": "100",
+      "label": "Delhi Co-operative Housing Finance Corporation. Ltd."
+    },
+    {
+      "id": "214",
+      "label": "Delhi Commission for Protection of Child Rights"
+    },
+    {
+      "id": "98",
+      "label": "Delhi Commission for Safai Karamcharis"
+    },
+    {
+      "id": "99",
+      "label": "Delhi Commission for Women"
+    },
+    {
+      "id": "191",
+      "label": "Delhi Dental Council"
+    },
+    {
+      "id": "101",
+      "label": "Delhi Dialogue & Development Commission"
+    },
+    {
+      "id": "102",
+      "label": "Delhi Electricity Regulatory Commission"
+    },
+    {
+      "id": "24",
+      "label": "Delhi Fire Service"
+    },
+    {
+      "id": "103",
+      "label": "Delhi Homeopathic Anusandhan Parishad"
+    },
+    {
+      "id": "104",
+      "label": "Delhi Institute of Hotel Management and Catering Technology"
+    },
+    {
+      "id": "91",
+      "label": "Delhi Institute of Pharmaceutical Sciences & Research"
+    },
+    {
+      "id": "105",
+      "label": "Delhi Jal Board"
+    },
+    {
+      "id": "106",
+      "label": "Delhi Khadi and Village Industries Board"
+    },
+    {
+      "id": "107",
+      "label": "Delhi Labour Welfare Board"
+    },
+    {
+      "id": "108",
+      "label": "Delhi Legal Services Authority"
+    },
+    {
+      "id": "109",
+      "label": "Delhi Legislative Assembly Secretariat"
+    },
+    {
+      "id": "224",
+      "label": "Delhi Medical Council"
+    },
+    {
+      "id": "110",
+      "label": "Delhi Minority Commission"
+    },
+    {
+      "id": "111",
+      "label": "Delhi Nursing Council"
+    },
+    {
+      "id": "112",
+      "label": "Delhi Pharmacy Council"
+    },
+    {
+      "id": "113",
+      "label": "Delhi Pollution Control Committee"
+    },
+    {
+      "id": "114",
+      "label": "Delhi Power Con. Ltd. (Transco)"
+    },
+    {
+      "id": "115",
+      "label": "Delhi SC/ST/OBC/Min. & Handicapped Finance & Development Corp. Ltd"
+    },
+    {
+      "id": "219",
+      "label": "Delhi Skill and Entrepreneurship University"
+    },
+    {
+      "id": "220",
+      "label": "Delhi State Cancer Institute"
+    },
+    {
+      "id": "116",
+      "label": "Delhi State Civil Supplies Corporation Ltd (DSCSC)"
+    },
+    {
+      "id": "118",
+      "label": "Delhi State Election Commission"
+    },
+    {
+      "id": "119",
+      "label": "Delhi State Hajj Committee"
+    },
+    {
+      "id": "216",
+      "label": "Delhi State Health Mission"
+    },
+    {
+      "id": "120",
+      "label": "Delhi State Industrial and Infrastructure Development Corporation Ltd.(DSIIDC)"
+    },
+    {
+      "id": "121",
+      "label": "Delhi States Aids Control Society"
+    },
+    {
+      "id": "122",
+      "label": "Delhi Subordinate Services Selection Board (DSSSB)"
+    },
+    {
+      "id": "23",
+      "label": "Delhi Technological University"
+    },
+    {
+      "id": "123",
+      "label": "Delhi Tourism and Transportation Development Corporation (DT&TDC)"
+    },
+    {
+      "id": "124",
+      "label": "Delhi Transport Corporation"
+    },
+    {
+      "id": "194",
+      "label": "Delhi Urban Shelter Improvement Board"
+    },
+    {
+      "id": "125",
+      "label": "Delhi Wakf Board"
+    },
+    {
+      "id": "126",
+      "label": "Department for Welfare of SC/ST/OBC/Minorities"
+    },
+    {
+      "id": "66",
+      "label": "Department of Food, Supplies & Consumer Affairs"
+    },
+    {
+      "id": "127",
+      "label": "Deputy Apprenticeship Advisor"
+    },
+    {
+      "id": "25",
+      "label": "Development Department"
+    },
+    {
+      "id": "128",
+      "label": "DFC (New Delhi & Chandigarh)"
+    },
+    {
+      "id": "27",
+      "label": "Directorate of Agricultural Marketing"
+    },
+    {
+      "id": "11",
+      "label": "Directorate of Audit"
+    },
+    {
+      "id": "29",
+      "label": "Directorate of Economics & Statistics"
+    },
+    {
+      "id": "61",
+      "label": "Directorate of Employment"
+    },
+    {
+      "id": "30",
+      "label": "Directorate of Family Welfare"
+    },
+    {
+      "id": "32",
+      "label": "Directorate of Health Services (DHS)"
+    },
+    {
+      "id": "75",
+      "label": "Directorate of ISMH"
+    },
+    {
+      "id": "217",
+      "label": "Directorate of Prosecution"
+    },
+    {
+      "id": "58",
+      "label": "Directorate of Small Savings"
+    },
+    {
+      "id": "152",
+      "label": "Directorate of Training and Technical Education"
+    },
+    {
+      "id": "28",
+      "label": "Directorate of Training, UTCS"
+    },
+    {
+      "id": "129",
+      "label": "Directorate of Vigilance"
+    },
+    {
+      "id": "50",
+      "label": "Dispensaries - Central District"
+    },
+    {
+      "id": "51",
+      "label": "Dispensaries - East District"
+    },
+    {
+      "id": "52",
+      "label": "Dispensaries - North District"
+    },
+    {
+      "id": "53",
+      "label": "Dispensaries - North East District"
+    },
+    {
+      "id": "54",
+      "label": "Dispensaries - North West District"
+    },
+    {
+      "id": "55",
+      "label": "Dispensaries - South District"
+    },
+    {
+      "id": "56",
+      "label": "Dispensaries - South-West District"
+    },
+    {
+      "id": "57",
+      "label": "Dispensaries - West District"
+    },
+    {
+      "id": "130",
+      "label": "Dr Baba Saheb Ambedkar Hospital"
+    },
+    {
+      "id": "131",
+      "label": "Dr. B.R.Ambedkar University"
+    },
+    {
+      "id": "133",
+      "label": "Dr. B.R.Sur Homeopathy Medical College & Hospital"
+    },
+    {
+      "id": "37",
+      "label": "Dr. Hedgewar Arogya Sansthan Hospital"
+    },
+    {
+      "id": "38",
+      "label": "Dr. N C Joshi Memorail Hospital"
+    },
+    {
+      "id": "26",
+      "label": "Drug Control"
+    },
+    {
+      "id": "186",
+      "label": "East Delhi Municipal Corporation"
+    },
+    {
+      "id": "60",
+      "label": "Education Department"
+    },
+    {
+      "id": "62",
+      "label": "Environment Department"
+    },
+    {
+      "id": "63",
+      "label": "Excise Department"
+    },
+    {
+      "id": "64",
+      "label": "Finance Department"
+    },
+    {
+      "id": "134",
+      "label": "Food Safety Department"
+    },
+    {
+      "id": "67",
+      "label": "Forensic Science Laboratory"
+    },
+    {
+      "id": "135",
+      "label": "G B Pant Institute of Technology"
+    },
+    {
+      "id": "208",
+      "label": "G. B. Pant Government Engineering College"
+    },
+    {
+      "id": "68",
+      "label": "G.B.Pant Hospital"
+    },
+    {
+      "id": "2",
+      "label": "General Administration Department"
+    },
+    {
+      "id": "136",
+      "label": "Guru Gobind Singh Indraprastha University"
+    },
+    {
+      "id": "39",
+      "label": "Guru Govind Singh Govt. Hospital"
+    },
+    {
+      "id": "137",
+      "label": "Guru Nanak Dev Institute of Technology"
+    },
+    {
+      "id": "69",
+      "label": "Guru Nanak Eye Hospital"
+    },
+    {
+      "id": "71",
+      "label": "Guru Teg Bahadur (GTB) Hospital"
+    },
+    {
+      "id": "70",
+      "label": "Gurudwara Election"
+    },
+    {
+      "id": "72",
+      "label": "Health & Family Welfare Department"
+    },
+    {
+      "id": "73",
+      "label": "Higher Education Department"
+    },
+    {
+      "id": "138",
+      "label": "Hindi Academy"
+    },
+    {
+      "id": "3",
+      "label": "Home Department"
+    },
+    {
+      "id": "74",
+      "label": "Home Guard & Civil Defence"
+    },
+    {
+      "id": "139",
+      "label": "Indira Gandhi Delhi Technical University for Women (IGDTUW)"
+    },
+    {
+      "id": "223",
+      "label": "Indira Gandhi Hospital"
+    },
+    {
+      "id": "202",
+      "label": "Indira Gandhi Institute of Physical Education & Sports Science"
+    },
+    {
+      "id": "140",
+      "label": "Indraprastha Power Generation Co. Ltd. (GENCO)"
+    },
+    {
+      "id": "76",
+      "label": "Industries Department"
+    },
+    {
+      "id": "77",
+      "label": "Information & Publicity Department (DIP)"
+    },
+    {
+      "id": "1",
+      "label": "Information Technology Department"
+    },
+    {
+      "id": "141",
+      "label": "Institute of Human Behaviour and Allied Sciences (IHBAS)"
+    },
+    {
+      "id": "215",
+      "label": "Institute of Liver and Biliary Sciences"
+    },
+    {
+      "id": "78",
+      "label": "Irrigation & Flood Control Department"
+    },
+    {
+      "id": "48",
+      "label": "Jag Pravesh Chandra Hospital"
+    },
+    {
+      "id": "213",
+      "label": "Janakpuri Super Speciality Hospital"
+    },
+    {
+      "id": "142",
+      "label": "Kasturba Institute of Technology For Woman"
+    },
+    {
+      "id": "203",
+      "label": "Keshav Mahavidyalaya"
+    },
+    {
+      "id": "79",
+      "label": "Labour Department"
+    },
+    {
+      "id": "40",
+      "label": "Lal Bahadur Shastri Hospital"
+    },
+    {
+      "id": "80",
+      "label": "Land & Building Department"
+    },
+    {
+      "id": "41",
+      "label": "Law Department"
+    },
+    {
+      "id": "143",
+      "label": "Lok Nayak Hospital"
+    },
+    {
+      "id": "144",
+      "label": "Lt. Governors Secretariat"
+    },
+    {
+      "id": "204",
+      "label": "Maharaja Agrasen College"
+    },
+    {
+      "id": "42",
+      "label": "Maharishi Balmiki Hospital"
+    },
+    {
+      "id": "205",
+      "label": "Maharshi Valimiki College of Education"
+    },
+    {
+      "id": "145",
+      "label": "Maulana Azad Institute of Dental Sciences"
+    },
+    {
+      "id": "146",
+      "label": "Maulana Azad Medical College (MAMC)"
+    },
+    {
+      "id": "147",
+      "label": "Meera Bai Institute of Technology"
+    },
+    {
+      "id": "241",
+      "label": "Municipal Corporation of Delhi"
+    },
+    {
+      "id": "148",
+      "label": "National Cadet Corps"
+    },
+    {
+      "id": "196",
+      "label": "National Law University"
+    },
+    {
+      "id": "149",
+      "label": "Nehru Homoeopathy Medical College & Hospital (NHMC&H)"
+    },
+    {
+      "id": "150",
+      "label": "Netaji Subhas Institute of Technology (NSIT)"
+    },
+    {
+      "id": "187",
+      "label": "North Delhi Municipal Corporation"
+    },
+    {
+      "id": "238",
+      "label": "Office Of Electricity Ombudsman, GNCTD"
+    },
+    {
+      "id": "190",
+      "label": "Office of Lokayukta"
+    },
+    {
+      "id": "248",
+      "label": "Office of the Minister Health & Family Welfare, Transport, Information Technology"
+    },
+    {
+      "id": "245",
+      "label": "Office of the Minister Home, Power, Urban Development, Education, Higher Education, Training & Technical Education"
+    },
+    {
+      "id": "246",
+      "label": "Office of the Minister Industries, Food & Supplies, Environment, Forest & Wild Life"
+    },
+    {
+      "id": "244",
+      "label": "Office of the Minister Law & Justice, Labour, Employment, Development, Art Culture & Language, and Tourism"
+    },
+    {
+      "id": "247",
+      "label": "Office of the Minister Social Welfare, Welfare of SC & ST, Cooperative, Election"
+    },
+    {
+      "id": "252",
+      "label": "Old Delhi District"
+    },
+    {
+      "id": "151",
+      "label": "Planning Department"
+    },
+    {
+      "id": "65",
+      "label": "Power Department"
+    },
+    {
+      "id": "153",
+      "label": "Principal Accounts Office"
+    },
+    {
+      "id": "225",
+      "label": "Principal District & Sessions Judge Central District, Tis Hazari Court, Delhi"
+    },
+    {
+      "id": "233",
+      "label": "Principal District & Sessions Judge, Dwarka Court, South West District"
+    },
+    {
+      "id": "226",
+      "label": "Principal District & Sessions Judge, Karkardooma Court, East District"
+    },
+    {
+      "id": "230",
+      "label": "Principal District & Sessions Judge, Karkardooma Court, North East District"
+    },
+    {
+      "id": "235",
+      "label": "Principal District & Sessions Judge, Karkardooma Court, Shahdara District"
+    },
+    {
+      "id": "229",
+      "label": "Principal District & Sessions Judge, Patiala House Court, New Delhi District"
+    },
+    {
+      "id": "232",
+      "label": "Principal District & Sessions Judge, Rohini Court, North District"
+    },
+    {
+      "id": "228",
+      "label": "Principal District & Sessions Judge, Rohini Court, North West District"
+    },
+    {
+      "id": "234",
+      "label": "Principal District & Sessions Judge, Rouse Avenue Court, Central District"
+    },
+    {
+      "id": "227",
+      "label": "Principal District & Sessions Judge, Saket Court, South District"
+    },
+    {
+      "id": "231",
+      "label": "Principal District & Sessions Judge, Saket Court, South East District"
+    },
+    {
+      "id": "236",
+      "label": "Principal District & Sessions Judge, Tis Hazari Court, West District"
+    },
+    {
+      "id": "154",
+      "label": "Prohibition Department"
+    },
+    {
+      "id": "44",
+      "label": "Pt. Madan Mohan Malaviya Hospital"
+    },
+    {
+      "id": "155",
+      "label": "Public Grievances Commission"
+    },
+    {
+      "id": "82",
+      "label": "Public Works Department"
+    },
+    {
+      "id": "156",
+      "label": "Public Works Department (PWD) - Engineer in Chief"
+    },
+    {
+      "id": "157",
+      "label": "Punjabi Academy"
+    },
+    {
+      "id": "158",
+      "label": "Pusa Institute of Technology"
+    },
+    {
+      "id": "159",
+      "label": "Rajiv Gandhi Super Speciality Hospital"
+    },
+    {
+      "id": "160",
+      "label": "Rajya Sainik Board"
+    },
+    {
+      "id": "47",
+      "label": "Rao Tula Ram Memorial Hospital"
+    },
+    {
+      "id": "21",
+      "label": "Registrar Co-operative Societies"
+    },
+    {
+      "id": "59",
+      "label": "Revenue Department"
+    },
+    {
+      "id": "210",
+      "label": "Sahitya Kala Parishad"
+    },
+    {
+      "id": "162",
+      "label": "Sanjay Gandhi Memorial Hospital"
+    },
+    {
+      "id": "163",
+      "label": "Sanskrit Academy"
+    },
+    {
+      "id": "46",
+      "label": "Sardar Vallabh Bhai Patel Hospital"
+    },
+    {
+      "id": "49",
+      "label": "Satyawadi Raja Harish Chandra Hospital (SRHC)"
+    },
+    {
+      "id": "164",
+      "label": "Services Department"
+    },
+    {
+      "id": "206",
+      "label": "Shaheed Rajguru College of Applied Sciences for Women"
+    },
+    {
+      "id": "207",
+      "label": "Shaheed Sukhdev College of Business Studies"
+    },
+    {
+      "id": "165",
+      "label": "Sharda Ukil School of Art"
+    },
+    {
+      "id": "218",
+      "label": "Shri Dada Dev Matri Svum Shishu Chikitsalaya"
+    },
+    {
+      "id": "166",
+      "label": "Sindhi Academy"
+    },
+    {
+      "id": "167",
+      "label": "Social Welfare Department"
+    },
+    {
+      "id": "188",
+      "label": "South Delhi Municipal Corporation"
+    },
+    {
+      "id": "168",
+      "label": "State Council of Educational Research and Training (SCERT)"
+    },
+    {
+      "id": "170",
+      "label": "Tourism Department"
+    },
+    {
+      "id": "171",
+      "label": "Trade & Taxes (Sales Tax) Department"
+    },
+    {
+      "id": "172",
+      "label": "Transport Department"
+    },
+    {
+      "id": "173",
+      "label": "Urban Development"
+    },
+    {
+      "id": "174",
+      "label": "Urdu Academy"
+    },
+    {
+      "id": "175",
+      "label": "Vigilance and Anti Corruption"
+    },
+    {
+      "id": "176",
+      "label": "Weight & Measures Department"
+    },
+    {
+      "id": "177",
+      "label": "Women & Child Development Department"
+    }
+  ]
+}

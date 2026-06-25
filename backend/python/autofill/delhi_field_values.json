@@ -1,0 +1,59 @@
+{
+  "source": "rtionline.delhi.gov.in",
+  "scraped_at": "2026-06-25",
+  "landing_page": {
+    "url": "https://rtionline.delhi.gov.in/request/request_email_check.php?lan=E",
+    "form_name": "FrmFirstAppeal",
+    "fields": [
+      { "name": "Email", "id": "Email", "type": "text", "required": true, "note": "Applicant email" },
+      { "name": "cell", "id": "cell", "type": "text", "required": true, "maxlength": 10, "note": "10-digit mobile" },
+      { "name": "6_letters_code", "id": "6_letters_code", "type": "text", "required": true, "maxlength": 6, "note": "CAPTCHA the user types" },
+      { "name": "div_captcha", "id": "capVal", "type": "text", "readonly": true, "note": "CLIENT-SIDE captcha answer — read this from the DOM and copy into 6_letters_code. CSS-obscured (filter:invert) but plain text in the DOM." },
+      { "name": "Submit", "id": "Submit", "type": "submit" }
+    ],
+    "captcha_strategy": "Read document.getElementById('capVal').value and fill 6_letters_code with it. captcha.php (AJAX) injects #captcha innerHTML on window.onload; refreshCaptcha() reloads it. No image OCR required."
+  },
+
+  "main_form": {
+    "url": "https://rtionline.delhi.gov.in/request/request.php",
+    "note": "Field names below are NIC-standard (verified on the central portal). Confirmed live via probe_delhi.py on first run.",
+    "public_authority": {
+      "field": "MinistryId",
+      "structure": "single-level",
+      "note": "221 Delhi public authorities. Full list in delhi_authorities.json. NO Ministry->Department AJAX layer.",
+      "samples": [
+        { "id": "4", "label": "Administrative Reforms Department" },
+        { "id": "172", "label": "Transport Department" },
+        { "id": "175", "label": "Vigilance and Anti Corruption" },
+        { "id": "188", "label": "South Delhi Municipal Corporation" },
+        { "id": "177", "label": "Women & Child Development Department" }
+      ]
+    },
+    "gender": [
+      { "value": "M", "label": "Male" },
+      { "value": "F", "label": "Female" },
+      { "value": "T", "label": "Third Gender" }
+    ],
+    "status": [
+      { "value": "R", "label": "Rural" },
+      { "value": "U", "label": "Urban" }
+    ],
+    "educational_status": [
+      { "value": "L", "label": "Literate" },
+      { "value": "I", "label": "Illiterate" }
+    ],
+    "citizenship": [
+      { "value": "I", "label": "Indian" },
+      { "value": "N", "label": "Other" }
+    ],
+    "bpl": [
+      { "value": "Y", "label": "Yes" },
+      { "value": "N", "label": "No" }
+    ],
+    "to_verify_on_first_run": [
+      "Exact applicant-state dropdown codes (stateId) — script selects by fuzzy label so non-critical",
+      "Whether a separate OTP page appears after the landing page",
+      "Whether the main form CAPTCHA is the same client-side capVal mechanism (assumed yes)"
+    ]
+  }
+}

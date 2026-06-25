@@ -1,0 +1,68 @@
+{
+  "source": "rtionline.gov.in — confirmed from live DOM probe on 2026-06-23",
+  "form_url": "https://rtionline.gov.in/request/request.php",
+
+  "gender": [
+    { "value": "M", "label": "Male" },
+    { "value": "F", "label": "Female" },
+    { "value": "T", "label": "Third Gender" }
+  ],
+
+  "state": [
+    { "value": "AP", "label": "Andhra Pradesh" },
+    { "value": "AR", "label": "Arunachal Pradesh" },
+    { "value": "AS", "label": "Assam" },
+    { "value": "BH", "label": "Bihar" },
+    { "value": "CH", "label": "Chandigarh" },
+    { "value": "CG", "label": "Chattisgarh" },
+    { "value": "DH", "label": "Delhi" },
+    { "value": "GD", "label": "Goa" },
+    { "value": "GJ", "label": "Gujarat" },
+    { "value": "HY", "label": "Haryana" },
+    { "value": "HP", "label": "Himachal Pradesh" },
+    { "value": "JK", "label": "Jammu And Kashmir" },
+    { "value": "JH", "label": "Jharkhand" },
+    { "value": "KN", "label": "Karnataka" },
+    { "value": "KL", "label": "Kerala" },
+    { "value": "LD", "label": "Lakshadweep" },
+    { "value": "MP", "label": "Madhya Pradesh" },
+    { "value": "MH", "label": "Maharashtra" },
+    { "value": "MN", "label": "Manipur" },
+    { "value": "MG", "label": "Meghalaya" },
+    { "value": "MZ", "label": "Mizoram" },
+    { "value": "NL", "label": "Nagaland" },
+    { "value": "OR", "label": "Odisha" },
+    { "value": "PC", "label": "Puducherry" },
+    { "value": "PB", "label": "Punjab" },
+    { "value": "RJ", "label": "Rajasthan" },
+    { "value": "SK", "label": "Sikkim" },
+    { "value": "TN", "label": "Tamil Nadu" },
+    { "value": "TG", "label": "Telangana" },
+    { "value": "TR", "label": "Tripura" },
+    { "value": "UT", "label": "Union Territory" },
+    { "value": "UC", "label": "Uttarakhand" },
+    { "value": "UP", "label": "Uttar Pradesh" },
+    { "value": "WB", "label": "West Bengal" },
+    { "value": "XX", "label": "No State" }
+  ],
+
+  "status": [
+    { "value": "R", "label": "Rural" },
+    { "value": "U", "label": "Urban" }
+  ],
+
+  "educational_status": [
+    { "value": "L", "label": "Literate" },
+    { "value": "I", "label": "Illiterate" }
+  ],
+
+  "citizenship": [
+    { "value": "I", "label": "Indian" },
+    { "value": "N", "label": "Other" }
+  ],
+
+  "bpl": [
+    { "value": "Y", "label": "Yes" },
+    { "value": "N", "label": "No" }
+  ]
+}
