@@ -326,8 +326,7 @@ router.get("/file-rti/drafts", async (req, res) => {
       .from("rti_drafts")
       .select("id, original_query, draft_subject, draft_information_sought, draft_body, draft_applicant, applicant_name, applicant_phone, applicant_address, applicant_gender, applicant_state, applicant_pincode, detected_state, detected_dept, portal_url, language, status, filed_pdf_url, filed_at, share_card_url, created_at")
       .eq("user_id", user_id)
-      .order("created_at", { ascending: false })
-      .limit(20);
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
     res.json(data || []);
