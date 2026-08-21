@@ -22,6 +22,14 @@ export const apiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Admin bulk processing — generous, protected by adminAuth email check
+export const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 600,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Duplicate check — 20 req per 15 min per IP
 export const duplicateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

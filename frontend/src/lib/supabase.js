@@ -26,6 +26,13 @@ export async function getSession() {
   return data?.session || null;
 }
 
+// Always ask Supabase for the current token — it silently refreshes expired
+// ones, unlike a snapshot kept in React state
+export async function freshToken() {
+  const { data } = await supabase.auth.getSession();
+  return data?.session?.access_token || null;
+}
+
 // Generate or retrieve a persistent anonymous user ID stored in localStorage
 // Used for upvotes and other actions when not logged in
 export function getAnonymousUserId() {

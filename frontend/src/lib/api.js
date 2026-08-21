@@ -325,3 +325,30 @@ export async function rateDepartment(deptId, { user_id, rating, rti_id }) {
   });
   return handleResponse(res);
 }
+
+// ---------------------------------------------------------------------------
+// Admin: bulk upload
+// ---------------------------------------------------------------------------
+export async function adminMe(token) {
+  const res = await fetch(`${BASE}/admin/me`, { headers: authHeaders(token) });
+  return handleResponse(res);
+}
+
+export async function adminDeleteEntry(id, token) {
+  const res = await fetch(`${BASE}/admin/entries/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: authHeaders(token),
+  });
+  return handleResponse(res);
+}
+
+export async function adminProcessPdf(blob, filename, token) {
+  const fd = new FormData();
+  fd.append("file", blob, filename);
+  const res = await fetch(`${BASE}/admin/process-pdf`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: fd,
+  });
+  return handleResponse(res);
+}

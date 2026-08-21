@@ -1,7 +1,9 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import { apiLimiter } from "./middleware/rateLimiter.js";
+import { apiLimiter, adminLimiter } from "./middleware/rateLimiter.js";
+import adminAuth from "./middleware/adminAuth.js";
+import adminRouter from "./routes/admin.js";
 
 import uploadRouter from "./routes/upload.js";
 import searchRouter from "./routes/search.js";
@@ -47,6 +49,10 @@ app.use(
 );
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
+// Admin routes get their own limiter + email-restricted auth (mounted before
+// the general apiLimiter so bulk uploads aren't capped at 100 req/15min)
+app.use("/api/admin", adminLimiter, adminAuth, adminRouter);
+
 app.use("/api", apiLimiter);
 
 // ---------------------------------------------------------------------------

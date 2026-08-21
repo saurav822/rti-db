@@ -65,7 +65,7 @@ INSERT INTO rti_portals (state, portal_name, portal_url, submission_type, is_ver
 
 ('Andhra Pradesh',
  'AP RTI Online',
- 'https://rti.ap.gov.in',
+ 'https://sic.ap.gov.in/sic_be/Template/login.php',
  'online', false,
  NULL),
 
@@ -77,25 +77,25 @@ INSERT INTO rti_portals (state, portal_name, portal_url, submission_type, is_ver
 
 ('Assam',
  'Assam RTI Portal',
- 'https://rti.assam.gov.in',
+ 'https://rtionline.assam.gov.in/new-rti.php',
  'online', false,
  NULL),
 
 ('Bihar',
  'Bihar RTI Portal',
- 'https://rtionline.bih.nic.in',
+ 'https://jaankari.bihar.gov.in/citizen-login-home',
  'online', false,
  NULL),
 
 ('Chhattisgarh',
  'CG RTI Portal',
- 'https://rti.cg.gov.in',
+ 'https://rtionline.cg.gov.in/',
  'online', false,
  NULL),
 
 ('Delhi',
  'Delhi RTI Portal',
- 'https://rti.delhi.gov.in',
+ 'https://rtionline.delhi.gov.in/',
  'online', false,
  NULL),
 
@@ -107,37 +107,37 @@ INSERT INTO rti_portals (state, portal_name, portal_url, submission_type, is_ver
 
 ('Gujarat',
  'Gujarat RTI Portal',
- 'https://rti.gujarat.gov.in',
+ 'https://onlinerti.gujarat.gov.in/rti_portal/site/login',
  'online', false,
  NULL),
 
 ('Haryana',
  'Haryana RTI Portal',
- 'https://rti.haryana.gov.in',
+ 'https://rtiharyana.gov.in/registrationEntryNEW.aspx',
  'online', false,
  NULL),
 
 ('Himachal Pradesh',
  'HP RTI Portal',
- 'https://rti.hp.gov.in',
+ 'https://onlinerti.hp.gov.in/backend/web/index.php?r=site%2Flogin',
  'online', false,
  NULL),
 
 ('Jharkhand',
  'Jharkhand RTI Portal',
- 'https://rti.jharkhand.gov.in',
+ 'https://rti.jharkhand.gov.in/request/request_email_check.php?lan=M',
  'online', false,
  NULL),
 
 ('Karnataka',
  'Karnataka RTI Online',
- 'https://rtionline.karnataka.gov.in',
+ 'https://rtionline.karnataka.gov.in/RTIMIS/login/index.php',
  'online', false,
  NULL),
 
 ('Kerala',
  'Kerala RTI Portal',
- 'https://rti.kerala.gov.in',
+ 'https://rtiportal.kerala.gov.in/index.php/login',
  'online', false,
  NULL),
 
@@ -149,7 +149,7 @@ INSERT INTO rti_portals (state, portal_name, portal_url, submission_type, is_ver
 
 ('Maharashtra',
  'Maharashtra RTI Portal',
- 'https://rti.maharashtra.gov.in',
+ 'https://rtionline.maharashtra.gov.in/index.php?lan=E',
  'online', false,
  NULL),
 
@@ -179,19 +179,19 @@ INSERT INTO rti_portals (state, portal_name, portal_url, submission_type, is_ver
 
 ('Odisha',
  'Odisha RTI Portal',
- 'https://rti.odisha.gov.in',
+ 'https://rtiodisha.gov.in/Pages/rtiApplication',
  'online', false,
  NULL),
 
 ('Punjab',
  'Punjab RTI Portal',
- 'https://rtionline.punjab.gov.in',
+ 'https://connect.punjab.gov.in/',
  'online', false,
  NULL),
 
 ('Rajasthan',
  'Rajasthan RTI Portal',
- 'https://rtiraj.nic.in',
+ 'https://rti.rajasthan.gov.in/citizenlogin',
  'online', false,
  NULL),
 
@@ -203,13 +203,13 @@ INSERT INTO rti_portals (state, portal_name, portal_url, submission_type, is_ver
 
 ('Tamil Nadu',
  'Tamil Nadu RTI Portal',
- 'https://rti.tn.gov.in',
+ 'https://rtionline.tn.gov.in/RTIMIS/login/index.php',
  'online', false,
  NULL),
 
 ('Telangana',
  'Telangana RTI Portal',
- 'https://rti.telangana.gov.in',
+ 'https://meeseva.telangana.gov.in/',
  'online', false,
  NULL),
 
@@ -221,19 +221,19 @@ INSERT INTO rti_portals (state, portal_name, portal_url, submission_type, is_ver
 
 ('Uttar Pradesh',
  'UP RTI Portal',
- 'https://rti.up.nic.in',
+ 'https://rtionline.up.gov.in/login/index.php?lan=E',
  'online', false,
  NULL),
 
 ('Uttarakhand',
  'Uttarakhand RTI Portal',
- 'https://rti.uk.gov.in',
+ 'https://rtionline.uk.gov.in/RTIMIS/login/index.php',
  'online', false,
  NULL),
 
 ('West Bengal',
  'West Bengal RTI Portal',
- 'https://rti.wb.gov.in',
+ 'https://rtionline.wb.gov.in/aspx/index.aspx',
  'online', false,
  NULL),
 

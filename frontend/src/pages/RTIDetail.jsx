@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import HindiText from "../components/HindiText.jsx";
 import RTICard from "../components/RTICard.jsx";
 import TagPill from "../components/TagPill.jsx";
 import {
   getRTIEntry, searchRTIs,
   toggleHelpful, getHelpfulCount, getComments, addComment,
-  rateDepartment, getDepartmentByName,
+  rateDepartment, getDepartmentByName, adminDeleteEntry,
 } from "../lib/api.js";
-import { getAnonymousUserId } from "../lib/supabase.js";
+import { getAnonymousUserId, freshToken } from "../lib/supabase.js";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useLanguage } from "../contexts/LanguageContext.jsx";
 import { useT, displayState } from "../lib/i18n.js";
@@ -135,7 +135,21 @@ function ResponseTable({ table, t }) {
 
 export default function RTIDetail() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleAdminDelete() {
+    if (!window.confirm("Delete this RTI entry permanently? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      await adminDeleteEntry(id, await freshToken());
+      navigate("/browse");
+    } catch (err) {
+      alert(`Delete failed: ${err.message}`);
+      setDeleting(false);
+    }
+  }
   const { lang } = useLanguage();
   const t = useT(lang);
 
@@ -315,6 +329,16 @@ export default function RTIDetail() {
               <span className="status-pill" style={{ background: "var(--green-bg)", color: "var(--green)" }}>
                 {t("detail_verified")}
               </span>
+            )}
+            {isAdmin && (
+              <button
+                onClick={handleAdminDelete}
+                disabled={deleting}
+                className="status-pill ml-auto cursor-pointer"
+                style={{ background: "var(--red-bg)", color: "var(--red)", border: "1px solid rgba(155,44,44,0.25)", opacity: deleting ? 0.6 : 1 }}
+              >
+                {deleting ? "Deleting…" : "Delete entry (admin)"}
+              </button>
             )}
           </div>
 
