@@ -13,6 +13,9 @@ import Profile from "./pages/Profile.jsx";
 import Departments from "./pages/Departments.jsx";
 import About from "./pages/About.jsx";
 import Admin from "./pages/Admin.jsx";
+import AdminOldUploads from "./pages/AdminOldUploads.jsx";
+import AdminImport from "./pages/AdminImport.jsx";
+import AdminNewUploads from "./pages/AdminNewUploads.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import { LanguageProvider } from "./contexts/LanguageContext.jsx";
 
@@ -36,6 +39,9 @@ export default function App() {
               <Route path="departments" element={<Departments />} />
               <Route path="about" element={<About />} />
               <Route path="admin" element={<Admin />} />
+              <Route path="admin/entries" element={<AdminOldUploads />} />
+              <Route path="admin/import" element={<AdminImport />} />
+              <Route path="admin/entries/new" element={<AdminNewUploads />} />
             </Route>
           </Routes>
         </BrowserRouter>

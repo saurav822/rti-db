@@ -334,6 +334,12 @@ export async function adminMe(token) {
   return handleResponse(res);
 }
 
+export async function adminListEntries(token, { source } = {}) {
+  const qs = source ? `?source=${encodeURIComponent(source)}` : "";
+  const res = await fetch(`${BASE}/admin/entries${qs}`, { headers: authHeaders(token) });
+  return handleResponse(res);
+}
+
 export async function adminDeleteEntry(id, token) {
   const res = await fetch(`${BASE}/admin/entries/${encodeURIComponent(id)}`, {
     method: "DELETE",
@@ -346,6 +352,18 @@ export async function adminProcessPdf(blob, filename, token) {
   const fd = new FormData();
   fd.append("file", blob, filename);
   const res = await fetch(`${BASE}/admin/process-pdf`, {
+    method: "POST",
+    headers: authHeaders(token),
+    body: fd,
+  });
+  return handleResponse(res);
+}
+
+export async function adminImportRecord(record, blob, filename, token) {
+  const fd = new FormData();
+  fd.append("record", JSON.stringify(record));
+  if (blob) fd.append("file", blob, filename);
+  const res = await fetch(`${BASE}/admin/import-record`, {
     method: "POST",
     headers: authHeaders(token),
     body: fd,

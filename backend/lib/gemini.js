@@ -69,6 +69,22 @@ export async function parseRTIDocument(pdfBuffer) {
     - state: for central government departments (Ministry, Commission, Board, Authority at national level), always use 'केंद्र सरकार / Central'
     - If a field is not found, return null for that field
     - Return ONLY the JSON object, nothing else
+
+    PRIVACY — this is critical, apply to EVERY field above (extracted_text,
+    title, subject, questions, response_summary, response_full_text,
+    response_tables):
+    - This platform publishes RTI content anonymously. The applicant/citizen
+      who filed the RTI must NEVER be identifiable from any field you return.
+    - Remove or replace the applicant's personal name, postal address, phone
+      number, email address, and any ID number (Aadhaar, PAN, etc.) wherever
+      they appear — in letter salutations, addressee blocks, signature
+      lines, envelopes, or anywhere else in the document. Replace with
+      "[Applicant]" (or omit the line entirely) rather than transcribing it.
+    - Do NOT let the applicant's name leak into extracted_text,
+      response_full_text, title, subject, response_summary, or tags.
+    - This does NOT apply to government officials — the PIO's name/designation,
+      department names, and official addresses are public information and
+      should be kept as-is.
   `;
 
   const result = await model.generateContent([

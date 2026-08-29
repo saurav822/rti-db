@@ -331,6 +331,18 @@ export default function RTIDetail() {
               </span>
             )}
             {isAdmin && (
+              <span
+                className="status-pill"
+                style={
+                  entry.is_admin_upload
+                    ? { background: "rgba(30,64,175,0.09)", color: "#1e40af", border: "1px solid rgba(30,64,175,0.20)" }
+                    : { background: "var(--surface)", color: "var(--ink-3)", border: "1px solid var(--rule)" }
+                }
+              >
+                {entry.is_admin_upload ? "Admin" : "Individual"}
+              </span>
+            )}
+            {isAdmin && (
               <button
                 onClick={handleAdminDelete}
                 disabled={deleting}
