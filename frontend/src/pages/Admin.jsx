@@ -25,6 +25,7 @@ export default function Admin() {
   const [zipName, setZipName] = useState("");
   const [files, setFiles] = useState([]);       // [{ name, size, entry }]
   const [skipped, setSkipped] = useState([]);   // [{ name, reason }]
+  const [hasManifest, setHasManifest] = useState(false);
   const [startFrom, setStartFrom] = useState(1);
 
   const [running, setRunning] = useState(false);
@@ -66,14 +67,17 @@ export default function Admin() {
     setResults([]);
     setQuotaHit(false);
     setStartFrom(1);
+    setHasManifest(false);
     try {
       const zip = await JSZip.loadAsync(file);
       const pdfs = [];
       const skips = [];
       const entries = Object.values(zip.files).sort((a, b) => a.name.localeCompare(b.name));
+      let sawJson = false;
       for (const entry of entries) {
         if (entry.dir || isJunkEntry(entry.name)) continue;
         if (!entry.name.toLowerCase().endsWith(".pdf")) {
+          if (entry.name.toLowerCase().endsWith(".json")) sawJson = true;
           skips.push({ name: entry.name, reason: "Not a PDF" });
           continue;
         }
@@ -81,6 +85,7 @@ export default function Admin() {
       }
       setFiles(pdfs);
       setSkipped(skips);
+      setHasManifest(sawJson);
     } catch (err) {
       setSkipped([{ name: file.name, reason: `Could not read zip: ${err.message}` }]);
     }
@@ -191,7 +196,7 @@ export default function Admin() {
         <h1 className="text-2xl font-semibold text-[var(--ink)]">Bulk RTI Upload</h1>
         <div className="flex items-center gap-4">
           <Link to="/admin/import" className="text-sm underline" style={{ color: "var(--ink-3)" }}>Import</Link>
-          <Link to="/admin/entries" className="text-sm underline" style={{ color: "var(--ink-3)" }}>View old uploads →</Link>
+          <Link to="/admin/entries" className="text-sm underline" style={{ color: "var(--ink-3)" }}>Uploads →</Link>
         </div>
       </div>
       <p className="text-sm text-[var(--ink-3)] mb-8">
@@ -225,13 +230,37 @@ export default function Admin() {
       </div>
 
       {/* File list summary + controls */}
-      {files.length > 0 && (
+      {zipName && (files.length > 0 || skipped.length > 0) && (
         <div className="card p-6 mb-6">
           <p className="text-sm text-[var(--ink)] mb-4">
             <strong>{files.length}</strong> PDFs found
-            {skipped.length > 0 && <span className="text-[var(--ink-3)]"> · {skipped.length} non-PDF entries ignored</span>}
+            {skipped.length > 0 && <span className="text-[var(--ink-3)]"> · {skipped.length} entries ignored</span>}
           </p>
 
+          {hasManifest && (
+            <p className="text-sm mb-4 px-3 py-2" style={{ background: "rgba(30,64,175,0.09)", color: "#1e40af", borderRadius: "var(--r-sm)" }}>
+              This zip contains a .json file — if it's a pre-parsed manifest, use{" "}
+              <Link to="/admin/import" className="underline font-medium">Import</Link> instead so no Gemini
+              parsing (and quota) is spent on these PDFs.
+            </p>
+          )}
+
+          {skipped.length > 0 && (
+            <ul className="text-xs text-[var(--ink-3)] mb-4 space-y-1" style={{ maxHeight: 160, overflowY: "auto" }}>
+              {skipped.map((s, i) => (
+                <li key={i}>{s.name} — {s.reason}</li>
+              ))}
+            </ul>
+          )}
+
+          {files.length === 0 && (
+            <p className="text-sm" style={{ color: "var(--red)" }}>
+              No valid PDFs found in this zip. See the reasons above — a common cause is the zip only
+              containing a subfolder, or the download being incomplete/corrupted.
+            </p>
+          )}
+
+          {files.length > 0 && (
           <div className="flex items-center gap-4 flex-wrap">
             {!running ? (
               <button
@@ -265,9 +294,10 @@ export default function Admin() {
               />
             </label>
           </div>
+          )}
 
           {/* Progress */}
-          {(running || done > 0) && (
+          {files.length > 0 && (running || done > 0) && (
             <div className="mt-5">
               <div className="h-2 w-full overflow-hidden" style={{ background: "var(--rule)", borderRadius: 999 }}>
                 <div

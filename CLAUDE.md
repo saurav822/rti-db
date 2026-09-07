@@ -72,7 +72,7 @@ VITE_API_BASE_URL    # e.g. http://localhost:3001/api
 - **PDF Parsing**: `gemini-2.5-flash` — natively handles Devanagari; extracts structured JSON fields (title, department, state, questions, tags, etc.)
 - **Embeddings**: `embedding-001` — 768-dim vectors over concatenated `title + department + subject + questions + tags`
 - **Retry logic**: exponential backoff (2 → 4 → 8s) on `429 / RESOURCE_EXHAUSTED`
-- **Quota guard**: `gemini_usage` table tracks daily requests; blocks at 950/1000 and returns `quota_exceeded: true` with Hindi message (HTTP 200, not 429)
+- **Quota guard**: `gemini_usage` table tracks daily requests; blocks at 1200/day and returns `quota_exceeded: true` with Hindi message (HTTP 200, not 429)
 - **Graceful degradation**: if parsing fails, returns empty fields so user can fill manually
 
 ### Search Architecture

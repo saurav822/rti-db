@@ -282,7 +282,7 @@ export async function checkAndIncrementGeminiUsage(supabase) {
 
   const currentCount = data?.call_count ?? 0;
 
-  if (currentCount >= 950) {
+  if (currentCount >= 1200) {
     return { allowed: false, count: currentCount };
   }
 

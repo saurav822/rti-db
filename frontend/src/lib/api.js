@@ -334,8 +334,12 @@ export async function adminMe(token) {
   return handleResponse(res);
 }
 
-export async function adminListEntries(token, { source } = {}) {
-  const qs = source ? `?source=${encodeURIComponent(source)}` : "";
+export async function adminListEntries(token, { source, limit, offset } = {}) {
+  const params = new URLSearchParams();
+  if (source) params.set("source", source);
+  if (limit != null) params.set("limit", limit);
+  if (offset != null) params.set("offset", offset);
+  const qs = params.toString() ? `?${params.toString()}` : "";
   const res = await fetch(`${BASE}/admin/entries${qs}`, { headers: authHeaders(token) });
   return handleResponse(res);
 }

@@ -1,11 +1,15 @@
 import supabase from "../lib/supabase.js";
 
-// Only the account whose email matches ADMIN_EMAIL may call admin routes.
+// Only accounts whose email is listed in ADMIN_EMAIL may call admin routes.
+// ADMIN_EMAIL accepts a single address or a comma-separated list.
 // Expects a Supabase access token: Authorization: Bearer <token>
 export default async function adminAuth(req, res, next) {
   try {
-    const adminEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
-    if (!adminEmail) {
+    const adminEmails = (process.env.ADMIN_EMAIL || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    if (adminEmails.length === 0) {
       return res.status(503).json({ error: "Admin access is not configured (ADMIN_EMAIL missing)" });
     }
 
@@ -21,7 +25,7 @@ export default async function adminAuth(req, res, next) {
       return res.status(401).json({ error: "Session expired — please sign out and sign in again" });
     }
 
-    if (data.user.email.toLowerCase() !== adminEmail) {
+    if (!adminEmails.includes(data.user.email.toLowerCase())) {
       console.warn(`adminAuth: unauthorized email ${data.user.email}`);
       return res.status(403).json({ error: "This account is not authorized for admin access" });
     }

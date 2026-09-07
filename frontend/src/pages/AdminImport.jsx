@@ -72,7 +72,10 @@ export default function AdminImport() {
 
       const jsonEntry = entries.find((e) => e.name.toLowerCase().endsWith(".json"));
       if (!jsonEntry) {
-        setIssues([{ name: file.name, reason: "No .json manifest file found in the zip" }]);
+        setIssues([
+          { name: file.name, reason: `No .json manifest file found — ${entries.length} file(s) seen in zip:` },
+          ...entries.slice(0, 50).map((e) => ({ name: e.name, reason: "found in zip" })),
+        ]);
         return;
       }
 
@@ -218,7 +221,7 @@ export default function AdminImport() {
         <h1 className="text-2xl font-semibold text-[var(--ink)]">Import Pre-Parsed RTIs</h1>
         <div className="flex items-center gap-4">
           <Link to="/admin" className="text-sm underline" style={{ color: "var(--ink-3)" }}>Bulk Upload</Link>
-          <Link to="/admin/entries/new" className="text-sm underline" style={{ color: "var(--ink-3)" }}>View new uploads →</Link>
+          <Link to="/admin/entries" className="text-sm underline" style={{ color: "var(--ink-3)" }}>Uploads →</Link>
         </div>
       </div>
       <p className="text-sm text-[var(--ink-3)] mb-8">

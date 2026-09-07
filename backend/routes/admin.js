@@ -406,30 +406,52 @@ router.delete("/entries/:id", async (req, res) => {
 
 // ---------------------------------------------------------------------------
 // GET /api/admin/entries
-// Full list of RTI entries for the admin uploads table. Includes both
-// admin_pdf_url (admin-bulk PDFs, never shown publicly) and file_url
-// (individual uploads that kept their PDF) so the frontend can resolve a
-// single "PDF link" per row.
+// Paginated list of RTI entries for the admin uploads table (newest first).
+// Includes both admin_pdf_url (admin-bulk PDFs, never shown publicly) and
+// file_url (individual uploads that kept their PDF) so the frontend can
+// resolve a single "PDF link" per row.
+// Query params: limit (default 100, max 200), offset (default 0), source
+// (optional — "json_import" to filter to the import flow only).
 // ---------------------------------------------------------------------------
 router.get("/entries", async (req, res) => {
   try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 200);
+    const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+
     let query = supabase
       .from("rti_entries")
       .select(
-        "id, original_filename, title, created_at, department, state, questions, response_summary, file_url, admin_pdf_url, is_admin_upload, is_json_import"
+        "id, original_filename, title, created_at, department, state, questions, response_summary, file_url, admin_pdf_url, is_admin_upload, is_json_import",
+        { count: "exact" }
       )
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (req.query.source === "json_import") {
       query = query.eq("is_json_import", true);
     }
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
 
     if (error) {
       return res.status(500).json({ error: "Failed to load entries", detail: error.message });
     }
-    return res.json({ entries: data || [] });
+
+    // Tag entries whose original_filename also appears on another row —
+    // exact-match duplicate detection, independent of embedding similarity.
+    let dupSet = new Set();
+    try {
+      const { data: dups } = await supabase.rpc("admin_duplicate_filenames");
+      dupSet = new Set((dups || []).map((d) => d.original_filename));
+    } catch (err) {
+      console.warn("admin_duplicate_filenames RPC failed:", err.message);
+    }
+    const entries = (data || []).map((e) => ({
+      ...e,
+      is_duplicate_filename: !!e.original_filename && dupSet.has(e.original_filename),
+    }));
+
+    return res.json({ entries, total: count ?? 0, offset, limit });
   } catch (err) {
     console.error("Admin list entries error:", err);
     return res.status(500).json({ error: "Unexpected error", detail: err.message });
