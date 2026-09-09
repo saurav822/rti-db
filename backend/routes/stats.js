@@ -29,17 +29,6 @@ router.get("/stats", async (_req, res) => {
       .not("state", "is", null);
     const statesCount = new Set((stateData || []).map((d) => d.state)).size;
 
-    // Response rate
-    const { count: respondedCount } = await supabase
-      .from("rti_entries")
-      .select("*", { count: "exact", head: true })
-      .neq("response_status", "pending");
-
-    const responseRate =
-      totalEntries > 0
-        ? Math.round(((respondedCount || 0) / totalEntries) * 100)
-        : 0;
-
     // Top 8 departments by count
     const { data: allDeptRows } = await supabase
       .from("rti_entries")
@@ -116,7 +105,6 @@ router.get("/stats", async (_req, res) => {
       total_entries: totalEntries || 0,
       departments_count: departmentsCount,
       states_count: statesCount,
-      response_rate: responseRate,
       top_departments: topDepartments,
       top_tags: topTags,
       monthly_filings: monthlyFilings,

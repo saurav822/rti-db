@@ -30,7 +30,7 @@ const PLACEHOLDERS = {
   semantic: { en: "Search RTIs...", hi: "RTI खोजें..." },
 };
 
-const STAT_LABELS = ["01 — TOTAL", "02 — DEPTS", "03 — STATES", "04 — RATE"];
+const STAT_LABELS = ["01 — TOTAL", "02 — DEPTS", "03 — STATES"];
 
 const tooltipStyle = {
   background: "var(--surface)",
@@ -71,7 +71,6 @@ export default function Home() {
     { idx: STAT_LABELS[0], num: stats.total_entries?.toLocaleString("en-IN"), lbl: t("home_total_rtis") },
     { idx: STAT_LABELS[1], num: stats.departments_count, lbl: t("home_departments") },
     { idx: STAT_LABELS[2], num: stats.states_count, lbl: t("home_states") },
-    { idx: STAT_LABELS[3], num: `${stats.response_rate}%`, lbl: t("home_response_rate") },
   ] : null;
 
   return (
@@ -302,12 +301,12 @@ export default function Home() {
 
       {/* ── STATS STRIP ── */}
       <div
-        className="grid grid-cols-2 sm:grid-cols-4"
+        className="grid grid-cols-1 sm:grid-cols-3"
         style={{ borderBottom: "1px solid var(--rule-strong)" }}
       >
         {loading ? (
-          [...Array(4)].map((_, i) => (
-            <div key={i} className="relative px-8 py-7 animate-pulse" style={{ borderRight: i < 3 ? "1px solid var(--rule)" : "none" }}>
+          [...Array(3)].map((_, i) => (
+            <div key={i} className="relative px-8 py-7 animate-pulse" style={{ borderRight: i < 2 ? "1px solid var(--rule)" : "none" }}>
               <div className="h-3 w-20 rounded mb-3" style={{ background: "var(--rule)" }} />
               <div className="h-9 w-16 rounded mb-2" style={{ background: "var(--rule)" }} />
               <div className="h-3 w-24 rounded" style={{ background: "var(--rule)" }} />
@@ -315,7 +314,7 @@ export default function Home() {
           ))
         ) : statCells ? statCells.map((cell, i) => (
           <div key={i} className="relative px-6 sm:px-8 py-7 flex flex-col gap-1"
-            style={{ borderRight: i < 3 ? "1px solid var(--rule)" : "none" }}>
+            style={{ borderRight: i < 2 ? "1px solid var(--rule)" : "none" }}>
             <span className="mono-text" style={{ fontSize: 9, color: "var(--ink-4)", letterSpacing: "1px", marginBottom: 4 }}>
               {cell.idx}
             </span>
