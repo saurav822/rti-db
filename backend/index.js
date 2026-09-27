@@ -24,6 +24,8 @@ app.set("trust proxy", 1);
 // ---------------------------------------------------------------------------
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  "https://www.charchagram.com",
+  "https://charchagram.com",
   "http://localhost:5173",
   "http://localhost:3001",
 ].filter(Boolean);
@@ -34,6 +36,8 @@ app.use(
       // Allow same-origin requests (no Origin header) and whitelisted origins.
       // On Vercel, frontend and backend share the same domain so origin will
       // match FRONTEND_URL. Also allow *.vercel.app preview deployments.
+      // The production custom domain is hardcoded above as a fallback so a
+      // blank/stale FRONTEND_URL env var can't silently break CORS site-wide.
       if (
         !origin ||
         allowedOrigins.some((o) => origin.startsWith(o)) ||
