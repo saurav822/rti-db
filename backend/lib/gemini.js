@@ -3,19 +3,23 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // ---------------------------------------------------------------------------
-// Retry wrapper — handles 429 / RESOURCE_EXHAUSTED from free-tier limits
+// Retry wrapper — handles 429 / RESOURCE_EXHAUSTED (rate limit) and
+// 503 / UNAVAILABLE (Google's servers briefly overloaded) with backoff.
 // ---------------------------------------------------------------------------
 export async function geminiWithRetry(fn, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
       return await fn();
     } catch (err) {
-      const isRateLimit =
+      const isRetryable =
         err.message?.includes("429") ||
-        err.message?.includes("RESOURCE_EXHAUSTED");
-      if (isRateLimit && i < retries - 1) {
+        err.message?.includes("RESOURCE_EXHAUSTED") ||
+        err.message?.includes("503") ||
+        err.message?.includes("UNAVAILABLE") ||
+        err.status === 503;
+      if (isRetryable && i < retries - 1) {
         const delay = Math.pow(2, i) * 2000; // 2 s, 4 s, 8 s
-        console.warn(`Gemini rate limit hit. Retrying in ${delay}ms…`);
+        console.warn(`Gemini request failed (${err.status || "retryable"}). Retrying in ${delay}ms…`);
         await new Promise((r) => setTimeout(r, delay));
         continue;
       }
