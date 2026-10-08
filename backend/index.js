@@ -24,8 +24,8 @@ app.set("trust proxy", 1);
 // ---------------------------------------------------------------------------
 const allowedOrigins = [
   process.env.FRONTEND_URL,
-  "https://www.charchagram.com",
-  "https://charchagram.com",
+  "https://www.rtigram.com",
+  "https://rtigram.com",
   "http://localhost:5173",
   "http://localhost:3001",
 ].filter(Boolean);

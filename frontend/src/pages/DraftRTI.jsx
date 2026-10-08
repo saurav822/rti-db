@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext.jsx";
 import { useT } from "../lib/i18n.js";
 import { useAuth } from "../contexts/AuthContext.jsx";
+import { buildPortalPayload } from "../lib/portalPayload.js";
 import {
   getRTIClarifyingQuestions,
   generateRTIDraftAPI,
@@ -540,17 +541,17 @@ export default function DraftRTI() {
 
     const dept = draft?.department || "";
     const state = draft?.detected_state || "";
-    const fileRtiUrl = "https://www.charchagram.com/file-rti";
+    const fileRtiUrl = "https://www.rtigram.com/file-rti";
     const filedDate = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 
-    const shortCardUrl = `https://www.charchagram.com/s/${savedDraftId}`;
+    const shortCardUrl = `https://www.rtigram.com/s/${savedDraftId}`;
     const cardLine = (includeCard && shareCardUrl)
       ? draftLang === "hi"
         ? `\n\n*दूसरों को भी पूछने की प्रेरणा दें — अपनी RTI कहानी शेयर करें:*\n${shortCardUrl}`
         : `\n\n*Inspire others to ask — share your RTI story on Instagram:*\n${shortCardUrl}`
       : "";
 
-    const shortPdfUrl = `https://www.charchagram.com/r/${savedDraftId}`;
+    const shortPdfUrl = `https://www.rtigram.com/r/${savedDraftId}`;
 
     const message = draftLang === "hi"
       ? `*RTI दाखिल कर दी गई!*\n\n_सूचना का अधिकार अधिनियम, 2005 के तहत आपकी ओर से RTI दाखिल की गई है।_\n\n*विभाग:* ${dept}${state ? ` (${state})` : ""}\n*विषय:* ${editedSubject}\n*दिनांक:* ${filedDate}\n\n*आपकी दाखिल RTI यहाँ देखें:*\n${shortPdfUrl}${cardLine}\n\n*खुद RTI दाखिल करना चाहते हैं?*\n${fileRtiUrl}\n\nFollow us on Instagram: instagram.com/__charchagram__\n\n_#RTI #SachJannaHaHamara_`
@@ -1122,6 +1123,23 @@ export default function DraftRTI() {
             return (
               <div className="card p-5">
                 <p className="section-label mb-3">{t("file_portal_label")}</p>
+
+                <div className="mb-3">
+                  <CopyBtn
+                    text={JSON.stringify(buildPortalPayload({
+                      department: draft.department,
+                      state: draft.detected_state,
+                      subject: editedSubject,
+                      body: editedFullApp,
+                      applicant,
+                    }), null, 2)}
+                    field="portal_payload"
+                    copiedField={copiedField}
+                    onCopy={copyToClipboard}
+                    label={lang === "hi" ? "एक्सटेंशन के लिए फ़ॉर्म डेटा कॉपी करें" : "Copy form data for the portal extension"}
+                    t={t}
+                  />
+                </div>
 
                 {/* Local runner URL — paste ngrok/cloudflare tunnel URL here */}
                 {showAuto && (

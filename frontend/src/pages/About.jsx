@@ -119,13 +119,13 @@ export default function About() {
               <div>
                 <span className="section-label block mb-0.5">{t("about_org_title")}</span>
                 <a
-                  href="https://www.charchagram.com"
+                  href="https://www.rtigram.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs font-medium transition-colors"
                   style={{ color: "var(--accent)" }}
                 >
-                  charchagram.com ↗
+                  rtigram.com ↗
                 </a>
               </div>
             </div>
