@@ -455,17 +455,7 @@ export default function Home() {
         <HindiText as="h2" className="text-2xl font-semibold mb-3" style={{ color: "#ffffff", letterSpacing: "-0.5px" }}>
           {t("home_cta_title")}
         </HindiText>
-        <p className="hindi-text mb-6 text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>{t("home_cta_desc")}</p>
-        <div className="hidden sm:flex flex-wrap justify-center gap-3">
-          <Link to="/upload" className="btn-primary">{t("nav_upload")}</Link>
-          <Link
-            to="/check"
-            className="px-5 py-2 text-sm font-semibold rounded-[var(--r-sm)] transition-colors"
-            style={{ border: "1px solid rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.80)" }}
-          >
-            {t("home_check_duplicates")}
-          </Link>
-        </div>
+        <p className="hindi-text" style={{ color: "rgba(255,255,255,0.55)" }}>{t("home_cta_desc")}</p>
       </DarkCTA>
     </div>
   );

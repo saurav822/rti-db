@@ -8,7 +8,6 @@ const navLinks = [
   { to: "/", key: "nav_home", end: true },
   { to: "/browse", key: "nav_browse" },
   { to: "/departments", key: "nav_departments" },
-  { to: "/file-rti", key: "nav_duplicate_check" },
   { to: "/about", key: "nav_about" },
 ];
 
@@ -70,62 +69,22 @@ export default function Layout() {
               </div>
             </NavLink>
 
-            {/* ── Lang toggle (small, near logo) ── */}
-            <div
-              className="hidden sm:flex items-center p-0.5 rounded-md"
-              style={{ background: "var(--rule)", gap: 1 }}
-            >
-              <button
-                onClick={() => setLang("en")}
-                className="rounded transition-all"
-                style={{
-                  fontSize: 10.5,
-                  fontFamily: "DM Mono, monospace",
-                  fontWeight: 500,
-                  letterSpacing: "0.04em",
-                  padding: "2px 7px",
-                  ...(lang === "en"
-                    ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
-                    : { background: "transparent", color: "var(--ink-4)" }),
-                }}
-              >
-                EN
-              </button>
-              <button
-                onClick={() => setLang("hi")}
-                className="rounded transition-all"
-                style={{
-                  fontSize: 10.5,
-                  fontFamily: "Noto Sans Devanagari, sans-serif",
-                  fontWeight: 500,
-                  padding: "2px 7px",
-                  ...(lang === "hi"
-                    ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
-                    : { background: "transparent", color: "var(--ink-4)" }),
-                }}
-              >
-                हि
-              </button>
-            </div>
-
             {/* ── Divider ── */}
             <div className="hidden md:block w-px h-5 shrink-0" style={{ background: "var(--rule-strong)" }} />
 
-            {/* ── Center nav ── */}
-            <nav className="hidden md:flex items-center gap-0.5 flex-1">
-              {navLinks.map((link) => (
-                <NavLink key={link.to} to={link.to} end={link.end} className={navLinkClass}>
-                  {t(link.key)}
-                </NavLink>
-              ))}
-            </nav>
+            {/* ── Center nav + search ── */}
+            <nav className="hidden md:flex items-center gap-3 flex-1">
+              <div className="flex items-center gap-0.5">
+                {navLinks.map((link) => (
+                  <NavLink key={link.to} to={link.to} end={link.end} className={navLinkClass}>
+                    {t(link.key)}
+                  </NavLink>
+                ))}
+              </div>
 
-            {/* ── Right cluster ── */}
-            <div className="flex items-center gap-2 shrink-0 ml-auto">
-
-              {/* Compact search bar */}
+              {/* Compact search bar — right next to About */}
               <form
-                className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-[var(--r-sm)]"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-[var(--r-sm)]"
                 style={{ background: "rgba(255,253,245,0.55)", border: "1px solid var(--rule-strong)", width: 200 }}
                 onSubmit={e => { e.preventDefault(); if (searchQuery.trim()) { navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}&mode=keyword`); setSearchQuery(""); } else { navigate("/search"); } }}
               >
@@ -141,11 +100,25 @@ export default function Layout() {
                   style={{ fontSize: 12.5, color: "var(--ink-2)", fontFamily: "Instrument Sans, sans-serif" }}
                 />
               </form>
+            </nav>
+
+            {/* ── Right cluster ── */}
+            <div className="flex items-center gap-2 shrink-0 ml-auto">
+
+              {/* File RTI CTA */}
+              <NavLink
+                to="/file-rti"
+                className="hidden sm:flex items-center gap-1.5 py-1.5 px-3.5 text-sm font-semibold rounded-[var(--r-sm)]"
+                style={{ background: "var(--accent)", color: "#fff" }}
+              >
+                {t("nav_duplicate_check")}
+              </NavLink>
 
               {/* Upload CTA */}
               <NavLink
                 to="/upload"
-                className="hidden sm:flex btn-primary items-center gap-1.5 py-1.5 px-3.5 text-sm"
+                className="hidden sm:flex items-center gap-1.5 py-1.5 px-3.5 text-sm font-semibold rounded-[var(--r-sm)] transition-all"
+                style={{ background: "transparent", border: "1px solid var(--rule-strong)", color: "var(--ink-2)" }}
               >
                 <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4-4 4M12 4v12" />
@@ -209,6 +182,44 @@ export default function Layout() {
                   Sign In
                 </NavLink>
               )}
+
+              {/* Lang toggle (desktop, rightmost — after Sign In) */}
+              <div
+                className="hidden sm:flex items-center p-0.5 rounded-md"
+                style={{ background: "var(--rule)", gap: 1 }}
+              >
+                <button
+                  onClick={() => setLang("en")}
+                  className="rounded transition-all"
+                  style={{
+                    fontSize: 10.5,
+                    fontFamily: "DM Mono, monospace",
+                    fontWeight: 500,
+                    letterSpacing: "0.04em",
+                    padding: "2px 7px",
+                    ...(lang === "en"
+                      ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
+                      : { background: "transparent", color: "var(--ink-4)" }),
+                  }}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => setLang("hi")}
+                  className="rounded transition-all"
+                  style={{
+                    fontSize: 10.5,
+                    fontFamily: "Noto Sans Devanagari, sans-serif",
+                    fontWeight: 500,
+                    padding: "2px 7px",
+                    ...(lang === "hi"
+                      ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
+                      : { background: "transparent", color: "var(--ink-4)" }),
+                  }}
+                >
+                  हि
+                </button>
+              </div>
 
               {/* Mobile lang toggle (right side, left of hamburger) */}
               <div
@@ -285,7 +296,7 @@ export default function Layout() {
         {/* Mobile nav dropdown */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-[var(--rule)] px-4 py-3 flex flex-col gap-1" style={{ background: "var(--surface)" }}>
-            {navLinks.filter((link) => link.to !== "/file-rti").map((link) => (
+            {navLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}

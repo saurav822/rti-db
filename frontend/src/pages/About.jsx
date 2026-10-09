@@ -1,17 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext.jsx";
 import { useT } from "../lib/i18n.js";
 
 const VALUES = ["Transparency", "Impartiality", "Participation", "Accountability"];
 const VALUES_HI = ["पारदर्शिता", "निष्पक्षता", "भागीदारी", "जवाबदेही"];
-
-
-const STEPS = [
-  { n: "01", key_title: "about_step1_title", key_desc: "about_step1_desc", icon: "↑" },
-  { n: "02", key_title: "about_step2_title", key_desc: "about_step2_desc", icon: "✦" },
-  { n: "03", key_title: "about_step3_title", key_desc: "about_step3_desc", icon: "⌕" },
-];
 
 export default function About() {
   const { lang } = useLanguage();
@@ -41,7 +33,11 @@ export default function About() {
             className="text-4xl sm:text-5xl font-bold mb-6"
             style={{ color: "var(--ink)", lineHeight: 1.15 }}
           >
-            {t("about_title")}
+            {lang === "hi" ? (
+              <>RTI<span style={{ color: "var(--accent)" }}>gram</span> के बारे में</>
+            ) : (
+              <>About RTI<span style={{ color: "var(--accent)" }}>gram</span></>
+            )}
           </h1>
           <p
             className="text-lg leading-relaxed mx-auto"
@@ -49,60 +45,11 @@ export default function About() {
           >
             {t("about_hero_desc")}
           </p>
-          <div className="flex items-center justify-center gap-4 mt-8">
-            <Link to="/search" className="btn-primary px-6 py-2.5 text-sm">
-              Search RTIs →
-            </Link>
-            <Link to="/upload" className="btn-secondary px-6 py-2.5 text-sm">
-              {lang === "hi" ? "RTI अपलोड करें" : "Upload an RTI"}
-            </Link>
-          </div>
         </div>
       </section>
 
       {/* ── DIVIDER ── */}
       <div style={{ borderTop: "1px solid var(--rule-strong)" }} />
-
-      {/* ── HOW IT WORKS ── */}
-      <section className="py-16 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-10">
-            <span className="section-label">{t("about_how_title")}</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {STEPS.map(({ n, key_title, key_desc, icon }) => (
-              <div key={n} className="card p-6 flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex items-center justify-center w-10 h-10 rounded-full text-lg font-bold flex-shrink-0"
-                    style={{
-                      background: "var(--accent-glass)",
-                      border: "1px solid var(--accent-glow)",
-                      color: "var(--accent)",
-                    }}
-                  >
-                    {icon}
-                  </div>
-                  <span className="mono-text" style={{ color: "var(--ink-4)", fontSize: "0.6875rem" }}>
-                    {n}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-base mb-1" style={{ color: "var(--ink)" }}>
-                    {t(key_title)}
-                  </h3>
-                  <p className="text-sm leading-relaxed" style={{ color: "var(--ink-3)" }}>
-                    {t(key_desc)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── DIVIDER ── */}
-      <div style={{ borderTop: "1px solid var(--rule)" }} />
 
       {/* ── CHARCHA FOUNDATION ── */}
       <section className="py-16 px-4">

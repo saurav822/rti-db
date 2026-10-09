@@ -334,8 +334,8 @@ export const translations = {
     dept_col_state: "State",
 
     // About page
-    about_title: "About OpenRTI",
-    about_hero_desc: "India's first open-source RTI knowledge base — where citizens upload Right to Information documents, AI extracts structured data, and a searchable public commons grows for every Indian.",
+    about_title: "About RTIgram",
+    about_hero_desc: "RTIgram, by Charchagram, puts the Right to Information Act to work for every citizen. We help people write and file RTI applications that actually get answered — and build a public, searchable record of the ones already filed. Most RTI responses are read once and forgotten; RTIgram keeps them, so the answer one citizen fought for is there the second time someone else needs it, not just the first.",
     about_how_title: "How It Works",
     about_step1_title: "Upload",
     about_step1_desc: "Upload your RTI application or response as a PDF. No account needed for browsing — login only to contribute.",
@@ -705,7 +705,7 @@ export const translations = {
     dept_col_state: "राज्य",
 
     // About page
-    about_title: "OpenRTI के बारे में",
+    about_title: "RTIgram के बारे में",
     about_hero_desc: "भारत का पहला ओपन-सोर्स RTI ज्ञान भंडार — जहाँ नागरिक सूचना का अधिकार दस्तावेज़ अपलोड करते हैं, AI संरचित डेटा निकालता है, और हर भारतीय के लिए एक खोजयोग्य सार्वजनिक संग्रह बनता है।",
     about_how_title: "यह कैसे काम करता है",
     about_step1_title: "अपलोड करें",
