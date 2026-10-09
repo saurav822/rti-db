@@ -58,10 +58,15 @@ export default function Layout() {
 
             {/* ── Logo ── */}
             <NavLink to="/" className="flex items-center gap-2 shrink-0">
-              <img src="/logo.png" alt="OpenRTI" className="w-11 h-11 rounded-[var(--r-sm)]" style={{ objectFit: "contain" }} />
-              <span className="font-semibold text-[var(--ink)] hidden sm:block" style={{ fontSize: 15 }}>
-                OpenRTI
-              </span>
+              <img src="/logo.png" alt="RTIgram" className="w-11 h-11 rounded-[var(--r-sm)]" style={{ objectFit: "contain" }} />
+              <div className="flex flex-col leading-none">
+                <span className="font-semibold text-[var(--ink)]" style={{ fontSize: 15 }}>
+                  RTIgram
+                </span>
+                <span className="text-[var(--ink-3)]" style={{ fontSize: 9, marginTop: 2 }}>
+                  by Charchagram
+                </span>
+              </div>
             </NavLink>
 
             {/* ── Mobile lang toggle (right of logo) ── */}
@@ -312,9 +317,9 @@ export default function Layout() {
       <footer className="border-t border-[var(--rule)] py-5 px-8" style={{ background: "var(--surface)" }}>
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="OpenRTI" className="w-5 h-5 rounded" style={{ objectFit: "contain" }} />
+            <img src="/logo.png" alt="RTIgram" className="w-5 h-5 rounded" style={{ objectFit: "contain" }} />
             <span className="mono-text text-[var(--ink-4)] uppercase" style={{ fontSize: 10, letterSpacing: "0.05em" }}>
-              OpenRTI · Open data for every Indian citizen
+              RTIgram · Open data for every Indian citizen
             </span>
           </div>
           <div className="flex items-center gap-4 text-xs" style={{ color: "var(--ink-4)" }}>

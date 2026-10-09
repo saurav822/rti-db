@@ -25,7 +25,7 @@ export default function Login() {
   return (
     <div className="max-w-md mx-auto px-4 py-16">
       <div className="card p-8 text-center">
-        <img src="/logo.png" alt="OpenRTI" className="w-16 h-16 mx-auto mb-5 rounded-[var(--r-lg)]" style={{ objectFit: "contain" }} />
+        <img src="/logo.png" alt="RTIgram" className="w-16 h-16 mx-auto mb-5 rounded-[var(--r-lg)]" style={{ objectFit: "contain" }} />
         <h1 className="text-xl font-semibold text-[var(--ink)] mb-2">{t("login_title")}</h1>
         <p className="text-sm text-[var(--ink-3)] mb-8">{t("login_subtitle")}</p>
 

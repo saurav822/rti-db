@@ -35,7 +35,7 @@ export default function About() {
             className="mono-text uppercase inline-block mb-4"
             style={{ color: "var(--accent)", fontSize: "0.6875rem", letterSpacing: "0.1em" }}
           >
-            OpenRTI · Right to Information Act 2005
+            RTIgram · Right to Information Act 2005
           </span>
           <h1
             className="text-4xl sm:text-5xl font-bold mb-6"
