@@ -60,8 +60,9 @@ export default function Layout() {
             <NavLink to="/" className="flex items-center gap-2 shrink-0">
               <img src="/logo.png" alt="RTIgram" className="w-11 h-11 rounded-[var(--r-sm)]" style={{ objectFit: "contain" }} />
               <div className="flex flex-col leading-none">
-                <span className="font-semibold text-[var(--ink)]" style={{ fontSize: 15 }}>
-                  RTIgram
+                <span style={{ fontSize: 15, fontWeight: 800 }}>
+                  <span style={{ color: "var(--ink)" }}>RTI</span>
+                  <span style={{ color: "var(--accent)" }}>gram</span>
                 </span>
                 <span className="text-[var(--ink-3)]" style={{ fontSize: 9, marginTop: 2 }}>
                   by Charchagram
