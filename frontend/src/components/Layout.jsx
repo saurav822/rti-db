@@ -70,35 +70,6 @@ export default function Layout() {
               </div>
             </NavLink>
 
-            {/* ── Mobile lang toggle (right of logo) ── */}
-            <div
-              className="flex sm:hidden items-center p-0.5 rounded-md shrink-0"
-              style={{ background: "var(--rule)", gap: 1 }}
-            >
-              <button
-                onClick={() => setLang("en")}
-                className="rounded transition-all"
-                style={{
-                  fontSize: 10.5, fontFamily: "DM Mono, monospace", fontWeight: 500,
-                  letterSpacing: "0.04em", padding: "2px 7px",
-                  ...(lang === "en"
-                    ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
-                    : { background: "transparent", color: "var(--ink-4)" }),
-                }}
-              >EN</button>
-              <button
-                onClick={() => setLang("hi")}
-                className="rounded transition-all"
-                style={{
-                  fontSize: 10.5, fontFamily: "Noto Sans Devanagari, sans-serif", fontWeight: 500,
-                  padding: "2px 7px",
-                  ...(lang === "hi"
-                    ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
-                    : { background: "transparent", color: "var(--ink-4)" }),
-                }}
-              >हि</button>
-            </div>
-
             {/* ── Lang toggle (small, near logo) ── */}
             <div
               className="hidden sm:flex items-center p-0.5 rounded-md"
@@ -239,17 +210,34 @@ export default function Layout() {
                 </NavLink>
               )}
 
-              {/* Mobile: upload button with label */}
-              <NavLink
-                to="/upload"
-                className="flex sm:hidden items-center gap-1.5 px-3 py-1.5 rounded-[var(--r-sm)] shrink-0 text-xs font-semibold"
-                style={{ background: "var(--accent)", color: "#fff" }}
+              {/* Mobile lang toggle (right side, left of hamburger) */}
+              <div
+                className="flex sm:hidden items-center p-0.5 rounded-md shrink-0"
+                style={{ background: "var(--rule)", gap: 1 }}
               >
-                <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4-4 4M12 4v12" />
-                </svg>
-                Upload RTI
-              </NavLink>
+                <button
+                  onClick={() => setLang("en")}
+                  className="rounded transition-all"
+                  style={{
+                    fontSize: 10.5, fontFamily: "DM Mono, monospace", fontWeight: 500,
+                    letterSpacing: "0.04em", padding: "2px 7px",
+                    ...(lang === "en"
+                      ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
+                      : { background: "transparent", color: "var(--ink-4)" }),
+                  }}
+                >EN</button>
+                <button
+                  onClick={() => setLang("hi")}
+                  className="rounded transition-all"
+                  style={{
+                    fontSize: 10.5, fontFamily: "Noto Sans Devanagari, sans-serif", fontWeight: 500,
+                    padding: "2px 7px",
+                    ...(lang === "hi"
+                      ? { background: "#fff", color: "var(--ink-2)", boxShadow: "0 1px 2px rgba(0,0,0,0.10)" }
+                      : { background: "transparent", color: "var(--ink-4)" }),
+                  }}
+                >हि</button>
+              </div>
 
               {/* Mobile hamburger */}
               <button
@@ -270,10 +258,34 @@ export default function Layout() {
           </div>
         </div>
 
+        {/* Mobile: File RTI + Upload RTI row, below the top bar */}
+        <div
+          className="sm:hidden flex items-center gap-2 px-4 py-2"
+          style={{ borderTop: "1px solid var(--rule)" }}
+        >
+          <NavLink
+            to="/file-rti"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-[var(--r-sm)] text-xs font-semibold"
+            style={{ background: "var(--accent)", color: "#fff" }}
+          >
+            {t("nav_duplicate_check")}
+          </NavLink>
+          <NavLink
+            to="/upload"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-[var(--r-sm)] text-xs font-semibold transition-all"
+            style={{ background: "transparent", border: "1px solid var(--rule-strong)", color: "var(--ink-2)" }}
+          >
+            <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4-4 4M12 4v12" />
+            </svg>
+            {t("nav_upload")}
+          </NavLink>
+        </div>
+
         {/* Mobile nav dropdown */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-[var(--rule)] px-4 py-3 flex flex-col gap-1" style={{ background: "var(--surface)" }}>
-            {navLinks.map((link) => (
+            {navLinks.filter((link) => link.to !== "/file-rti").map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
