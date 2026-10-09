@@ -456,7 +456,7 @@ export default function Home() {
           {t("home_cta_title")}
         </HindiText>
         <p className="hindi-text mb-6 text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>{t("home_cta_desc")}</p>
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="hidden sm:flex flex-wrap justify-center gap-3">
           <Link to="/upload" className="btn-primary">{t("nav_upload")}</Link>
           <Link
             to="/check"
