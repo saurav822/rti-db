@@ -63,6 +63,12 @@ INSERT INTO rti_portals (state, portal_name, portal_url, submission_type, is_ver
  'online', true,
  'Official portal for all central government ministries and departments'),
 
+('Election Commission of India',
+ 'ECI RTI Online Portal',
+ 'https://www.eci.gov.in/rti-online-portal',
+ 'online', false,
+ NULL),
+
 ('Andhra Pradesh',
  'AP RTI Online',
  'https://sic.ap.gov.in/sic_be/Template/login.php',
@@ -191,7 +197,7 @@ INSERT INTO rti_portals (state, portal_name, portal_url, submission_type, is_ver
 
 ('Rajasthan',
  'Rajasthan RTI Portal',
- 'https://rti.rajasthan.gov.in/citizenlogin',
+ 'https://rti.rajasthan.gov.in/',
  'online', false,
  NULL),
 
