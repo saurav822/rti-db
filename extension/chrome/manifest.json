@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "OpenRTI Form Filler",
+  "version": "0.1.0",
+  "description": "Fills the RTI Online form from a draft copied from OpenRTI. You type the CAPTCHA, OTP and contact details, attach the PDF and submit.",
+  "action": {
+    "default_title": "OpenRTI form filler"
+  },
+  "permissions": [
+    "activeTab",
+    "clipboardRead",
+    "scripting"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://rtionline.gov.in/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": [
+    "https://rtionline.gov.in/*"
+  ]
+}

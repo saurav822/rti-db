@@ -1032,6 +1032,19 @@ export default function DraftRTI() {
             </div>
           )}
 
+          {/* 1b. Public Authority — sourced from the rtionline.gov.in authority list (Central Govt only) */}
+          {authority?.authority_label && (
+            <div className="card p-5">
+              <div className="flex items-center justify-between mb-3">
+                <label className="section-label">{t("file_authority_field_label")}</label>
+                <CopyBtn text={authority.authority_label} field="public_authority" copiedField={copiedField} onCopy={copyToClipboard} t={t} />
+              </div>
+              <div className="rounded-[var(--r-sm)] px-4 py-3 hindi-text text-sm font-medium" style={{ background: "var(--glass)", border: "1px solid var(--rule-strong)", color: "var(--ink)" }}>
+                {authority.authority_label}
+              </div>
+            </div>
+          )}
+
           {/* 2. Subject */}
           <div className="card p-5">
             <div className="flex items-center justify-between mb-3">
@@ -1128,6 +1141,7 @@ export default function DraftRTI() {
                   <CopyBtn
                     text={JSON.stringify(buildPortalPayload({
                       department: draft.department,
+                      authority: authority?.authority_label,
                       state: draft.detected_state,
                       subject: editedSubject,
                       body: editedFullApp,

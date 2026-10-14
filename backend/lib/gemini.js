@@ -308,7 +308,6 @@ export async function checkAndIncrementGeminiUsage(supabase) {
 export async function classifyRTIAuthority(query, department, supabase) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-  // Fetch all authorities in one shot (~2,700 rows, ~45K tokens — cheap on Flash)
   const { data: allRows, error } = await supabase
     .from("rti_central_authorities")
     .select("ministry_id, ministry_label, authority_id, authority_label")
@@ -319,41 +318,128 @@ export async function classifyRTIAuthority(query, department, supabase) {
     return null;
   }
 
-  // Build a grouped text: "ministry_id | Ministry Label > authority_id | Authority Label"
-  const authorityList = allRows
-    .map((r) => `${r.ministry_id} | ${r.ministry_label} > ${r.authority_id} | ${r.authority_label}`)
-    .join("\n");
+  // ── Step 1: pick the ministry only, from the deduped ministry list ──
+  // Keeping this separate from authority selection guarantees the authority
+  // picked in step 2 can never belong to a different ministry.
+  const ministries = [];
+  const seenMinistry = new Set();
+  for (const r of allRows) {
+    if (seenMinistry.has(r.ministry_id)) continue;
+    seenMinistry.add(r.ministry_id);
+    ministries.push({ ministry_id: r.ministry_id, ministry_label: r.ministry_label });
+  }
 
-  const prompt = `You are matching an RTI (Right to Information Act, 2005) application to the exact public authority on rtionline.gov.in.
+  const normaliseLabel = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+  // Try a confident local match against `department` first — it was already
+  // determined by generateRTIDraft from the full query, so when it names a
+  // ministry closely enough, trust it instead of making Gemini re-guess from
+  // scratch (which is what produced wrong-ministry picks like landing on
+  // "Department of Agriculture" for an MGNREGA/Rural Development query).
+  let ministryMatch = null;
+  const normDept = normaliseLabel(department);
+  if (normDept) {
+    const exact = ministries.find((m) => normaliseLabel(m.ministry_label) === normDept);
+    if (exact) {
+      ministryMatch = exact;
+    } else {
+      // Substring containment either way, picking the longest (most specific) label.
+      let best = null;
+      for (const m of ministries) {
+        const normLabel = normaliseLabel(m.ministry_label);
+        if (normLabel.includes(normDept) || normDept.includes(normLabel)) {
+          if (!best || normLabel.length > normaliseLabel(best.ministry_label).length) best = m;
+        }
+      }
+      ministryMatch = best;
+    }
+  }
+
+  // No confident local match — fall back to asking Gemini to pick from the full list.
+  if (!ministryMatch) {
+    const ministryList = ministries.map((m) => `${m.ministry_id} | ${m.ministry_label}`).join("\n");
+
+    const ministryPrompt = `You are matching an RTI (Right to Information Act, 2005) application to the correct Central Government ministry/department on rtionline.gov.in.
 
 RTI Query: "${query}"
 Department identified from RTI: "${department || "unknown"}"
 
-Below is the complete list of Central Government authorities on rtionline.gov.in in the format:
-  ministry_id | Ministry Name > authority_id | Authority Name
+Below is the complete list of Central Government ministries/departments on rtionline.gov.in:
+  ministry_id | Ministry Name
+
+${ministryList}
+
+Return the single best-matching ministry_id. Return ONLY valid JSON, no markdown, no explanation:
+{"ministry_id": "ID"}`;
+
+    const ministryResult = await geminiWithRetry(() => model.generateContent(ministryPrompt));
+    const ministryText = ministryResult.response.text().trim()
+      .replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+
+    let parsedMinistry;
+    try { parsedMinistry = JSON.parse(ministryText); } catch { return null; }
+    ministryMatch = ministries.find((m) => String(m.ministry_id) === String(parsedMinistry.ministry_id));
+  }
+
+  if (!ministryMatch) return null;
+
+  // ── Step 2: pick the authority, restricted to that ministry's own rows ──
+  const authoritiesInMinistry = allRows.filter(
+    (r) => String(r.ministry_id) === String(ministryMatch.ministry_id)
+  );
+
+  // Only one authority (the ministry itself) — no need to ask Gemini again.
+  if (authoritiesInMinistry.length === 1) {
+    const only = authoritiesInMinistry[0];
+    return {
+      ministry_id: String(only.ministry_id),
+      ministry_label: only.ministry_label,
+      authority_id: String(only.authority_id),
+      authority_label: only.authority_label,
+    };
+  }
+
+  const authorityList = authoritiesInMinistry
+    .map((r) => `${r.authority_id} | ${r.authority_label}`)
+    .join("\n");
+
+  const authorityPrompt = `You are matching an RTI (Right to Information Act, 2005) application to the exact public authority under "${ministryMatch.ministry_label}" on rtionline.gov.in.
+
+RTI Query: "${query}"
+Department identified from RTI: "${department || "unknown"}"
+
+Below are the public authorities under this ministry:
+  authority_id | Authority Name
 
 ${authorityList}
 
 Instructions:
-- The "Department identified from RTI" is the strongest signal — match it as closely as possible to an entry in the list above.
-- Return the ministry and authority that best match.
-- If the RTI targets the ministry head office itself (no specific sub-authority), return the ministry-level authority entry.
+- Return the authority that best matches the query.
+- If the RTI targets the ministry head office itself (no specific sub-authority), return the authority whose name equals the ministry name.
 - Return ONLY valid JSON, no markdown, no explanation:
-{"ministry_id": "ID", "ministry_label": "exact ministry label", "authority_id": "ID", "authority_label": "exact authority label"}`;
+{"authority_id": "ID"}`;
 
-  const result = await geminiWithRetry(() => model.generateContent(prompt));
-  const text = result.response.text().trim()
+  const authorityResult = await geminiWithRetry(() => model.generateContent(authorityPrompt));
+  const authorityText = authorityResult.response.text().trim()
     .replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
 
-  let parsed;
-  try { parsed = JSON.parse(text); } catch { return null; }
-  if (!parsed.ministry_id) return null;
+  let parsedAuthority;
+  try { parsedAuthority = JSON.parse(authorityText); } catch { parsedAuthority = {}; }
+
+  const authorityMatch = authoritiesInMinistry.find(
+    (r) => String(r.authority_id) === String(parsedAuthority.authority_id)
+  );
+
+  // Fall back to the ministry-level authority entry if Gemini's pick doesn't
+  // actually belong to this ministry's list.
+  const chosen = authorityMatch
+    || authoritiesInMinistry.find((r) => String(r.authority_id) === String(r.ministry_id))
+    || authoritiesInMinistry[0];
 
   return {
-    ministry_id: parsed.ministry_id,
-    ministry_label: parsed.ministry_label,
-    authority_id: parsed.authority_id,
-    authority_label: parsed.authority_label,
+    ministry_id: String(chosen.ministry_id),
+    ministry_label: chosen.ministry_label,
+    authority_id: String(chosen.authority_id),
+    authority_label: chosen.authority_label,
   };
-
 }
