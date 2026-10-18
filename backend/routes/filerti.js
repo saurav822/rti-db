@@ -154,6 +154,7 @@ router.post("/file-rti/drafts", async (req, res) => {
       draft_applicant,
       applicant_name,
       applicant_phone,
+      applicant_email,
       applicant_address,
       applicant_gender,
       applicant_state,
@@ -184,6 +185,7 @@ router.post("/file-rti/drafts", async (req, res) => {
         draft_applicant,
         applicant_name: applicant_name || null,
         applicant_phone: applicant_phone || null,
+        applicant_email: applicant_email || null,
         applicant_address: applicant_address || null,
         applicant_gender: applicant_gender || null,
         applicant_state: applicant_state || null,
@@ -241,6 +243,7 @@ router.patch("/file-rti/drafts/:id", async (req, res) => {
       draft_applicant,
       applicant_name,
       applicant_phone,
+      applicant_email,
       applicant_address,
       applicant_gender,
       applicant_state,
@@ -256,6 +259,7 @@ router.patch("/file-rti/drafts/:id", async (req, res) => {
     if (draft_applicant !== undefined)         updates.draft_applicant = draft_applicant;
     if (applicant_name !== undefined)          updates.applicant_name = applicant_name || null;
     if (applicant_phone !== undefined)         updates.applicant_phone = applicant_phone || null;
+    if (applicant_email !== undefined)         updates.applicant_email = applicant_email || null;
     if (applicant_address !== undefined)       updates.applicant_address = applicant_address || null;
     if (applicant_gender !== undefined)        updates.applicant_gender = applicant_gender || null;
     if (applicant_state !== undefined)         updates.applicant_state = applicant_state || null;
@@ -324,7 +328,7 @@ router.get("/file-rti/drafts", async (req, res) => {
 
     const { data, error } = await supabase
       .from("rti_drafts")
-      .select("id, original_query, draft_subject, draft_information_sought, draft_body, draft_applicant, applicant_name, applicant_phone, applicant_address, applicant_gender, applicant_state, applicant_pincode, detected_state, detected_dept, portal_url, language, status, filed_pdf_url, filed_at, share_card_url, created_at")
+      .select("id, original_query, draft_subject, draft_information_sought, draft_body, draft_applicant, applicant_name, applicant_phone, applicant_email, applicant_address, applicant_gender, applicant_state, applicant_pincode, detected_state, detected_dept, portal_url, language, status, filed_pdf_url, filed_at, share_card_url, created_at")
       .eq("user_id", user_id)
       .order("created_at", { ascending: false });
 

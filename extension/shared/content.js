@@ -14,6 +14,7 @@
     ministry: "select[name='MinistryId']",
     department: "select[name='DepartmentId']",
     name: "input[name='Name']",
+    confirmEmail: "input[name='ConfirmEmail']",
     address1: "input[name='address1']",
     pincode: "input[name='pincode']",
     phone: "input[name='phone']",
@@ -26,6 +27,36 @@
       T: "input[name='gender'][value='T']",
     },
   };
+
+  // The portal's own page script shows a blocking alert()/confirm() when the
+  // Ministry dropdown changes ("Your request will be filed with ..."). While
+  // that's open, ALL page JavaScript is frozen — including the AJAX call
+  // that populates the Public Authority dropdown — so our fill would hang
+  // until a human clicks OK. Content scripts run in an isolated JS world and
+  // don't share `window` with the page, so neutralising alert/confirm has to
+  // happen in the page's actual MAIN world. We ask the background script to
+  // do that via chrome.scripting (world: "MAIN") — the officially supported
+  // mechanism for this, which isn't subject to the same CSP/Trusted Types
+  // edge cases as injecting a raw <script> tag — then restore them
+  // afterward so normal portal behaviour still works for anything the
+  // citizen does manually later.
+  function setPageDialogsSuppressed(suppressed) {
+    return chrome.runtime.sendMessage({ type: "openrti-set-dialogs-suppressed", suppressed }).catch(() => {});
+  }
+  function suppressPageDialogs() { return setPageDialogsSuppressed(true); }
+  function restorePageDialogs() { return setPageDialogsSuppressed(false); }
+
+  // Select by the option's numeric value, through the page's own jQuery
+  // instance — see the comment above selectViaPageJQuery in background.js
+  // for why this is needed instead of a native dispatchEvent.
+  async function selectByValueViaJQuery(selector, value) {
+    try {
+      const result = await chrome.runtime.sendMessage({ type: "openrti-jquery-select", selector, value });
+      return !!(result && result.ok);
+    } catch {
+      return false;
+    }
+  }
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -98,12 +129,57 @@
 
     const applicant = payload.applicant || {};
 
+    await suppressPageDialogs();
+    try {
+
     const ministry = await waitFor(SELECTORS.ministry);
     const authorityText = payload.authority || payload.department;
-    if (ministry && payload.department && selectByText(ministry, payload.department)) {
+
+    // Prefer selecting by the option's numeric value through the page's own
+    // jQuery — this is the same mechanism admin's Python automation uses,
+    // and (unlike a synthetic native 'change' event) reliably triggers
+    // whatever JS widget the portal wraps around these dropdowns. Selecting
+    // by value also needs no AJAX/options wait, since this population turns
+    // out to be synchronous client-side filtering, not a network call.
+    let ministryOk = false;
+    if (ministry && payload.ministry_id) {
+      ministryOk = await selectByValueViaJQuery(SELECTORS.ministry, payload.ministry_id);
+      console.log("[OpenRTI] Ministry selected via jQuery by value:", payload.ministry_id, "→", ministryOk);
+    }
+    if (!ministryOk && ministry && payload.department) {
+      ministryOk = selectByText(ministry, payload.department);
+      console.log("[OpenRTI] Ministry selected via text fallback:", ministryOk);
+    }
+
+    if (ministryOk) {
       report.filled.push("Ministry");
+
       const department = await waitFor(SELECTORS.department);
-      if ((await waitForOptions(department)) && authorityText && selectByText(department, authorityText)) {
+      let authorityOk = false;
+      if (department && payload.authority_id) {
+        // The option may not exist in the DOM the instant the Ministry
+        // change event fires — retry for a few seconds rather than giving
+        // up on the first attempt.
+        const start = Date.now();
+        while (!authorityOk && Date.now() - start < 8000) {
+          authorityOk = await selectByValueViaJQuery(SELECTORS.department, payload.authority_id);
+          if (!authorityOk) await sleep(400);
+        }
+        console.log("[OpenRTI] Public Authority selected via jQuery by value:", payload.authority_id, "→", authorityOk);
+      }
+      if (!authorityOk && department) {
+        // Fallback: wait for options then match by text (handles the case
+        // where we don't have an authority_id, or jQuery selection failed).
+        const gotOptions = await waitForOptions(department, 20000);
+        console.log(
+          "[OpenRTI] Public Authority options loaded:", gotOptions,
+          "| looking for:", authorityText,
+          "| available:", Array.from(department.options).map((o) => o.textContent.trim())
+        );
+        authorityOk = gotOptions && authorityText && selectByText(department, authorityText);
+      }
+
+      if (authorityOk) {
         report.filled.push("Public Authority");
       } else {
         report.failed.push({ field: "Public Authority", reason: "No matching public authority. Choose it manually." });
@@ -123,6 +199,7 @@
 
     const textFields = [
       ["Name", SELECTORS.name, applicant.name],
+      ["Confirm Email", SELECTORS.confirmEmail, applicant.email],
       ["Address", SELECTORS.address1, applicant.address],
       ["PIN code", SELECTORS.pincode, applicant.pincode],
       ["Phone", SELECTORS.phone, applicant.phone],
@@ -167,6 +244,10 @@
       report.skipped.push("Gender");
     }
 
+    } finally {
+      await restorePageDialogs();
+    }
+
     return report;
   }
 
@@ -177,4 +258,39 @@
     }
     return false;
   });
+
+  function summariseReport(report) {
+    const lines = [];
+    if (report.filled.length) lines.push(`Filled: ${report.filled.join(", ")}`);
+    if (report.skipped.length) lines.push(`Skipped (empty): ${report.skipped.join(", ")}`);
+    if (report.failed.length) lines.push(`Could not fill — please check manually: ${report.failed.map((f) => f.field).join(", ")}`);
+    if (lines.length === 0) lines.push("Nothing to fill.");
+    lines.push("Please read and verify every field before submitting, then fill the CAPTCHA manually and submit yourself.");
+    return lines.join("\n\n");
+  }
+
+  // Automatically prompt to fill once the actual filing form (Ministry
+  // dropdown) has loaded — this is the signal that the citizen has already
+  // logged in, accepted the portal's terms and reached the request page.
+  (async function autoPrompt() {
+    const ministry = await waitFor(SELECTORS.ministry, 15000);
+    if (!ministry) return; // not the filing page (or it never loaded)
+
+    let payload;
+    try {
+      const clip = await navigator.clipboard.readText();
+      payload = JSON.parse(clip);
+    } catch {
+      return; // nothing usable on the clipboard — stay silent, don't interrupt the citizen
+    }
+    if (!payload || payload.version !== PAYLOAD_VERSION) return;
+
+    const wantsFill = confirm(
+      "Fill this RTI form using the draft you copied from RTIgram?\n\nYou will still need to enter the CAPTCHA and complete submission/payment yourself."
+    );
+    if (!wantsFill) return;
+
+    const report = await fillPortalForm(payload);
+    alert(summariseReport(report));
+  })();
 })();

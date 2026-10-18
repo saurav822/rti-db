@@ -1,10 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "OpenRTI Form Filler",
+  "name": "RTIgram Autofill",
   "version": "0.1.0",
-  "description": "Fills the RTI Online form from a draft copied from OpenRTI. You type the CAPTCHA, OTP and contact details, attach the PDF and submit.",
+  "description": "Fills the RTI Online portal form from a draft copied from RTIgram. You enter the CAPTCHA, OTP and payment, and submit yourself.",
   "action": {
-    "default_title": "OpenRTI form filler"
+    "default_title": "RTIgram Autofill",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
   "permissions": [
     "activeTab",

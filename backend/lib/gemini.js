@@ -308,12 +308,28 @@ export async function checkAndIncrementGeminiUsage(supabase) {
 export async function classifyRTIAuthority(query, department, supabase) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-  const { data: allRows, error } = await supabase
-    .from("rti_central_authorities")
-    .select("ministry_id, ministry_label, authority_id, authority_label")
-    .order("ministry_label");
+  // PostgREST caps unbounded selects at 1000 rows by default — this table has
+  // ~2,700 authorities, so page through it or entries past the cutoff (e.g.
+  // anything alphabetically after ~"M") are invisible to the classifier.
+  const allRows = [];
+  const PAGE = 1000;
+  for (let offset = 0; ; offset += PAGE) {
+    const { data, error } = await supabase
+      .from("rti_central_authorities")
+      .select("ministry_id, ministry_label, authority_id, authority_label")
+      .order("ministry_label")
+      .range(offset, offset + PAGE - 1);
 
-  if (error || !allRows || allRows.length === 0) {
+    if (error) {
+      console.warn("classifyRTIAuthority: failed to fetch rti_central_authorities", error.message);
+      return null;
+    }
+    if (!data || data.length === 0) break;
+    allRows.push(...data);
+    if (data.length < PAGE) break;
+  }
+
+  if (allRows.length === 0) {
     console.warn("classifyRTIAuthority: no data in rti_central_authorities");
     return null;
   }

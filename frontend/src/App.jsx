@@ -12,6 +12,7 @@ import Login from "./pages/Login.jsx";
 import Profile from "./pages/Profile.jsx";
 import Departments from "./pages/Departments.jsx";
 import About from "./pages/About.jsx";
+import ExtensionPrivacy from "./pages/ExtensionPrivacy.jsx";
 import Admin from "./pages/Admin.jsx";
 import AdminUploads from "./pages/AdminUploads.jsx";
 import AdminImport from "./pages/AdminImport.jsx";
@@ -37,6 +38,7 @@ export default function App() {
               <Route path="profile" element={<Profile />} />
               <Route path="departments" element={<Departments />} />
               <Route path="about" element={<About />} />
+              <Route path="extension-privacy" element={<ExtensionPrivacy />} />
               <Route path="admin" element={<Admin />} />
               <Route path="admin/entries" element={<AdminUploads />} />
               <Route path="admin/import" element={<AdminImport />} />

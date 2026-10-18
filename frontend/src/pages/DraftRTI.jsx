@@ -162,11 +162,11 @@ export default function DraftRTI() {
   const [editedFullApp, setEditedFullApp] = useState("");
   const [editedApplicant, setEditedApplicant] = useState("");
   const [savedDraftId, setSavedDraftId] = useState(existingId);
-  const [applicant, setApplicant] = useState({ name: "", phone: "", gender: "", state: "", pincode: "", address: "" });
+  const [applicant, setApplicant] = useState({ name: "", phone: "", email: "", gender: "", state: "", pincode: "", address: "" });
+  const [showApplicantForm, setShowApplicantForm] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
   const [draftSaved, setDraftSaved] = useState(false);
   const [draftError, setDraftError] = useState("");
-  const [showApplicantForm, setShowApplicantForm] = useState(false);
   const [uploadingPDF, setUploadingPDF] = useState(false);
   const [filedPdfUrl, setFiledPdfUrl] = useState(null);
   const [uploadError, setUploadError] = useState("");
@@ -234,6 +234,7 @@ export default function DraftRTI() {
         setApplicant({
           name: d.applicant_name || "",
           phone: d.applicant_phone || "",
+          email: d.applicant_email || "",
           gender: d.applicant_gender || "",
           state: d.applicant_state || "",
           pincode: d.applicant_pincode || "",
@@ -325,7 +326,17 @@ export default function DraftRTI() {
     }
   }
 
+  // Applicant details are only required for Central Government filings,
+  // since that's the only flow the browser extension autofills — for state
+  // portals they stay optional, as before.
+  const applicantRequired = draft?.detected_state === "Central Government" || !draft?.detected_state;
+  const applicantDetailsComplete = !applicantRequired || [
+    applicant.name, applicant.phone, applicant.email, applicant.gender,
+    applicant.state, applicant.pincode, applicant.address,
+  ].every((v) => (v || "").trim().length > 0);
+
   function handleApproveDraft() {
+    if (!applicantDetailsComplete) return;
     setEditedApplicant(buildApplicantBlock(draft?.applicant_block || "", applicant));
     setDraftPhase("final");
     handleSaveDraft(false);
@@ -345,6 +356,7 @@ export default function DraftRTI() {
         draft_applicant: draft.applicant_block,
         applicant_name: applicant.name || null,
         applicant_phone: applicant.phone || null,
+        applicant_email: applicant.email || null,
         applicant_gender: applicant.gender || null,
         applicant_state: applicant.state || null,
         applicant_pincode: applicant.pincode || null,
@@ -383,6 +395,7 @@ export default function DraftRTI() {
         draft_applicant: editedApplicant,
         applicant_name: applicant.name || null,
         applicant_phone: applicant.phone || null,
+        applicant_email: applicant.email || null,
         applicant_gender: applicant.gender || null,
         applicant_state: applicant.state || null,
         applicant_pincode: applicant.pincode || null,
@@ -574,7 +587,7 @@ export default function DraftRTI() {
     setEditedFullApp("");
     setEditedApplicant("");
     setSavedDraftId(null);
-    setApplicant({ name: "", phone: "", gender: "", state: "", pincode: "", address: "" });
+    setApplicant({ name: "", phone: "", email: "", gender: "", state: "", pincode: "", address: "" });
     setCopiedField(null);
     setDraftSaved(false);
     setDraftError("");
@@ -899,77 +912,103 @@ export default function DraftRTI() {
             </div>
           )}
 
-          {/* Optional applicant details */}
+          {/* Applicant details — required (and always shown) for Central Government
+              filings, since that's the only flow the extension autofills; optional
+              and collapsed for state portals, as before. */}
           <div className="card p-5">
-            <button
-              className="flex items-center justify-between w-full"
-              onClick={() => setShowApplicantForm((v) => !v)}
-            >
+            {applicantRequired ? (
               <span className="section-label hindi-text">{t("file_applicant_title")}</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                className={`transition-transform ${showApplicantForm ? "rotate-180" : ""}`}
-                style={{ color: "var(--ink-4)" }}
+            ) : (
+              <button
+                className="flex items-center justify-between w-full"
+                onClick={() => setShowApplicantForm((v) => !v)}
               >
-                <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            {showApplicantForm && (
-              <div className="mt-4 space-y-3">
-                <p className="text-xs hindi-text" style={{ color: "var(--ink-4)" }}>{t("file_anon_hint")}</p>
-                {/* Row 1: Name + Gender */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="section-label block mb-1">{t("file_name_label")}</label>
-                    <input
-                      type="text"
-                      value={applicant.name}
-                      onChange={(e) => setApplicant((p) => ({ ...p, name: e.target.value }))}
-                      className="input-field hindi-text text-sm w-full"
-                      placeholder={lang === "hi" ? "आपका पूरा नाम" : "Your full name"}
-                    />
-                  </div>
-                  <div>
-                    <label className="section-label block mb-1">{t("file_gender_label")}</label>
-                    <select
-                      value={applicant.gender}
-                      onChange={(e) => setApplicant((p) => ({ ...p, gender: e.target.value }))}
-                      className="input-field hindi-text text-sm w-full"
-                    >
-                      <option value="">{t("file_gender_placeholder")}</option>
-                      <option value="Male">{lang === "hi" ? "पुरुष" : "Male"}</option>
-                      <option value="Female">{lang === "hi" ? "महिला" : "Female"}</option>
-                      <option value="Other">{lang === "hi" ? "अन्य" : "Other"}</option>
-                    </select>
-                  </div>
-                </div>
-                {/* Row 2: Phone + PIN Code */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="section-label block mb-1">{t("file_phone_label")}</label>
-                    <input
-                      type="tel"
-                      value={applicant.phone}
-                      onChange={(e) => setApplicant((p) => ({ ...p, phone: e.target.value }))}
-                      className="input-field text-sm w-full"
-                      placeholder="9876543210"
-                    />
-                  </div>
-                  <div>
-                    <label className="section-label block mb-1">{t("file_pincode_label")}</label>
-                    <input
-                      type="text"
-                      value={applicant.pincode}
-                      onChange={(e) => setApplicant((p) => ({ ...p, pincode: e.target.value }))}
-                      className="input-field text-sm w-full"
-                      placeholder="110001"
-                      maxLength={6}
-                    />
-                  </div>
-                </div>
-                {/* Row 3: State */}
+                <span className="section-label hindi-text">
+                  {t("file_applicant_title")} {lang === "hi" ? "(वैकल्पिक)" : "(Optional)"}
+                </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                  className={`transition-transform ${showApplicantForm ? "rotate-180" : ""}`}
+                  style={{ color: "var(--ink-4)" }}
+                >
+                  <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            )}
+            {(applicantRequired || showApplicantForm) && (
+            <div className="mt-4 space-y-3">
+              <p className="text-xs hindi-text" style={{ color: "var(--ink-4)" }}>{t("file_anon_hint")}</p>
+              {/* Row 1: Name + Gender */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="section-label block mb-1">{t("file_state_label")}</label>
+                  <label className="section-label block mb-1">{t("file_name_label")} {applicantRequired && <span style={{ color: "var(--accent)" }}>*</span>}</label>
+                  <input
+                    type="text"
+                    required={applicantRequired}
+                    value={applicant.name}
+                    onChange={(e) => setApplicant((p) => ({ ...p, name: e.target.value }))}
+                    className="input-field hindi-text text-sm w-full"
+                    placeholder={lang === "hi" ? "आपका पूरा नाम" : "Your full name"}
+                  />
+                </div>
+                <div>
+                  <label className="section-label block mb-1">{t("file_gender_label")} {applicantRequired && <span style={{ color: "var(--accent)" }}>*</span>}</label>
                   <select
+                    required={applicantRequired}
+                    value={applicant.gender}
+                    onChange={(e) => setApplicant((p) => ({ ...p, gender: e.target.value }))}
+                    className="input-field hindi-text text-sm w-full"
+                  >
+                    <option value="">{t("file_gender_placeholder")}</option>
+                    <option value="Male">{lang === "hi" ? "पुरुष" : "Male"}</option>
+                    <option value="Female">{lang === "hi" ? "महिला" : "Female"}</option>
+                    <option value="Other">{lang === "hi" ? "अन्य" : "Other"}</option>
+                  </select>
+                </div>
+              </div>
+              {/* Row 2: Phone + Email */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="section-label block mb-1">{t("file_phone_label")} {applicantRequired && <span style={{ color: "var(--accent)" }}>*</span>}</label>
+                  <input
+                    type="tel"
+                    required={applicantRequired}
+                    value={applicant.phone}
+                    onChange={(e) => setApplicant((p) => ({ ...p, phone: e.target.value }))}
+                    className="input-field text-sm w-full"
+                    placeholder="9876543210"
+                  />
+                </div>
+                <div>
+                  <label className="section-label block mb-1">{t("file_email_label")} {applicantRequired && <span style={{ color: "var(--accent)" }}>*</span>}</label>
+                  <input
+                    type="email"
+                    required={applicantRequired}
+                    value={applicant.email}
+                    onChange={(e) => setApplicant((p) => ({ ...p, email: e.target.value }))}
+                    className="input-field text-sm w-full"
+                    placeholder="you@example.com"
+                  />
+                  <p className="text-xs hindi-text mt-1" style={{ color: "var(--ink-4)" }}>{t("file_email_hint")}</p>
+                </div>
+              </div>
+              {/* Row 3: PIN Code + State */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="section-label block mb-1">{t("file_pincode_label")} {applicantRequired && <span style={{ color: "var(--accent)" }}>*</span>}</label>
+                  <input
+                    type="text"
+                    required={applicantRequired}
+                    value={applicant.pincode}
+                    onChange={(e) => setApplicant((p) => ({ ...p, pincode: e.target.value }))}
+                    className="input-field text-sm w-full"
+                    placeholder="110001"
+                    maxLength={6}
+                  />
+                </div>
+                <div>
+                  <label className="section-label block mb-1">{t("file_state_label")} {applicantRequired && <span style={{ color: "var(--accent)" }}>*</span>}</label>
+                  <select
+                    required={applicantRequired}
                     value={applicant.state}
                     onChange={(e) => setApplicant((p) => ({ ...p, state: e.target.value }))}
                     className="input-field hindi-text text-sm w-full"
@@ -980,24 +1019,33 @@ export default function DraftRTI() {
                     ))}
                   </select>
                 </div>
-                {/* Row 4: Address */}
-                <div>
-                  <label className="section-label block mb-1">{t("file_address_label")}</label>
-                  <p className="text-xs hindi-text mb-1" style={{ color: "var(--ink-4)" }}>{t("file_address_hint")}</p>
-                  <textarea
-                    rows={2}
-                    value={applicant.address}
-                    onChange={(e) => setApplicant((p) => ({ ...p, address: e.target.value }))}
-                    className="input-field hindi-text text-sm w-full resize-none"
-                    placeholder={lang === "hi" ? "मकान नंबर/मोहल्ला, शहर" : "House/locality, City"}
-                  />
-                </div>
               </div>
+              {/* Row 4: Address */}
+              <div>
+                <label className="section-label block mb-1">{t("file_address_label")} {applicantRequired && <span style={{ color: "var(--accent)" }}>*</span>}</label>
+                <p className="text-xs hindi-text mb-1" style={{ color: "var(--ink-4)" }}>{t("file_address_hint")}</p>
+                <textarea
+                  rows={2}
+                  required={applicantRequired}
+                  value={applicant.address}
+                  onChange={(e) => setApplicant((p) => ({ ...p, address: e.target.value }))}
+                  className="input-field hindi-text text-sm w-full resize-none"
+                  placeholder={lang === "hi" ? "मकान नंबर/मोहल्ला, शहर" : "House/locality, City"}
+                />
+              </div>
+            </div>
             )}
           </div>
 
-          <div className="flex justify-end">
-            <button onClick={handleApproveDraft} className="btn-primary py-3 px-8 text-sm">
+          <div className="flex flex-col items-end gap-2">
+            {!applicantDetailsComplete && (
+              <p className="text-xs hindi-text" style={{ color: "var(--accent)" }}>{t("file_details_incomplete")}</p>
+            )}
+            <button
+              onClick={handleApproveDraft}
+              disabled={!applicantDetailsComplete}
+              className="btn-primary py-3 px-8 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+            >
               {t("file_approve")}
             </button>
           </div>
@@ -1126,7 +1174,7 @@ export default function DraftRTI() {
             const isCentralGovt = draft.detected_state === "Central Government"
               || !draft.detected_state   // null/empty → assume central govt
               || draft.portal?.portal_url?.includes("rtionline.gov.in");
-            const portalUrl = draft.portal?.portal_url || (isCentralGovt ? "https://rtionline.gov.in" : null);
+            const portalUrl = draft.portal?.portal_url || (isCentralGovt ? "https://rtionline.gov.in/guidelines.php?request&&pageid=eccbc87e4b5ce2fe28308fd9f2a7baf3" : null);
             const autofillAllowed = (import.meta.env.VITE_AUTOFILL_ALLOWED_EMAILS || "")
               .split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
             const showAuto = !!savedDraftId && (
@@ -1137,23 +1185,47 @@ export default function DraftRTI() {
               <div className="card p-5">
                 <p className="section-label mb-3">{t("file_portal_label")}</p>
 
-                <div className="mb-3">
-                  <CopyBtn
-                    text={JSON.stringify(buildPortalPayload({
-                      department: draft.department,
-                      authority: authority?.authority_label,
-                      state: draft.detected_state,
-                      subject: editedSubject,
-                      body: editedFullApp,
-                      applicant,
-                    }), null, 2)}
-                    field="portal_payload"
-                    copiedField={copiedField}
-                    onCopy={copyToClipboard}
-                    label={lang === "hi" ? "एक्सटेंशन के लिए फ़ॉर्म डेटा कॉपी करें" : "Copy form data for the portal extension"}
-                    t={t}
-                  />
-                </div>
+                {isCentralGovt && portalUrl && (
+                  <div className="mb-3">
+                    <button
+                      onClick={async () => {
+                        const payload = buildPortalPayload({
+                          department: draft.department,
+                          authority: authority?.authority_label,
+                          ministryId: authority?.ministry_id,
+                          authorityId: authority?.authority_id,
+                          state: draft.detected_state,
+                          subject: editedSubject,
+                          body: editedInfoSought,
+                          applicant,
+                        });
+                        await copyText(JSON.stringify(payload));
+                        window.open(portalUrl, "_blank", "noopener,noreferrer");
+                      }}
+                      className="w-full flex items-center justify-center gap-2 rounded-[var(--r-md)] px-4 py-3.5 font-semibold text-sm transition-all"
+                      style={{ background: "var(--accent)", color: "#fff" }}
+                      onMouseEnter={e => { e.currentTarget.style.background = "var(--accent-hover)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = "var(--accent)"; }}
+                    >
+                      <span className="hindi-text">{lang === "hi" ? "एक्सटेंशन से ऑटो-फ़िल करें" : "Autofill using extension"}</span>
+                      <ExternalLinkIcon />
+                    </button>
+                    <p className="text-xs hindi-text mt-2 text-center" style={{ color: "var(--ink-4)" }}>
+                      {lang === "hi"
+                        ? "पोर्टल पर लॉगिन करने और फॉर्म पेज पर पहुंचने के बाद, एक पॉपअप दिखेगा — \"OK\" दबाएं।"
+                        : "After you log in and reach the filing page, a popup will appear — click \"OK\" to auto-fill."}
+                      {" "}
+                      <a
+                        href="https://github.com/saurav822/rti-db/tree/main/extension"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--accent)", textDecoration: "underline" }}
+                      >
+                        {lang === "hi" ? "एक्सटेंशन नहीं है?" : "Don't have the extension?"}
+                      </a>
+                    </p>
+                  </div>
+                )}
 
                 {/* Local runner URL — paste ngrok/cloudflare tunnel URL here */}
                 {showAuto && (
@@ -1209,16 +1281,14 @@ export default function DraftRTI() {
                 )}
 
                 <div className={`grid gap-3 ${showAuto ? "grid-cols-2" : "grid-cols-1"}`}>
-                  {/* Manual link */}
+                  {/* Manual link — secondary, fallback for citizens without the extension */}
                   {portalUrl ? (
                     <a
                       href={portalUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 rounded-[var(--r-md)] px-4 py-3.5 font-semibold text-sm transition-all"
-                      style={{ background: "var(--accent)", color: "#fff" }}
-                      onMouseEnter={e => { e.currentTarget.style.background = "var(--accent-hover)"; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = "var(--accent)"; }}
+                      style={{ background: "var(--glass)", border: "1px solid var(--rule-strong)", color: "var(--ink-2)" }}
                     >
                       <span className="hindi-text">{lang === "hi" ? "मैन्युअल दाखिल करें" : "File Manually"}</span>
                       <ExternalLinkIcon />

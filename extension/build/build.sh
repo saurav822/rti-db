@@ -11,5 +11,7 @@ for browser in chrome firefox; do
   mkdir -p "$DIST/$browser"
   cp "$ROOT/$browser/manifest.json" "$DIST/$browser/manifest.json"
   cp "$ROOT/shared/content.js" "$ROOT/shared/background.js" "$ROOT/shared/popup.html" "$ROOT/shared/popup.js" "$DIST/$browser/"
+  mkdir -p "$DIST/$browser/icons"
+  cp "$ROOT/shared/icons/icon16.png" "$ROOT/shared/icons/icon48.png" "$ROOT/shared/icons/icon128.png" "$DIST/$browser/icons/"
   echo "built $DIST/$browser"
 done
