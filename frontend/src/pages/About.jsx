@@ -142,14 +142,6 @@ export default function About() {
                   {lang === "hi" ? "सोम–शनि, सुबह 11 – शाम 6" : "Mon–Sat, 11 AM – 6 PM"}
                 </span>
               </ContactRow>
-
-              <ContactRow label={t("about_contact_address")} icon="⌖">
-                <span className="text-sm leading-snug" style={{ color: "var(--ink-2)" }}>
-                  {lang === "hi"
-                    ? "फ्लैट नं. 304, पॉकेट 8, सेक्टर 12, द्वारका, N.S.I.T. द्वारका, नई दिल्ली – 110078"
-                    : "Flat No. 304, Pocket 8, Sector 12, Dwarka, N.S.I.T. Dwarka, New Delhi – 110078"}
-                </span>
-              </ContactRow>
             </div>
 
             {/* CTA card */}
