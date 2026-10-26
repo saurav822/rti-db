@@ -37,13 +37,13 @@ button.addEventListener("click", async () => {
     payload = JSON.parse(await navigator.clipboard.readText());
   } catch (err) {
     clear();
-    addLine("bad", "Could not read clipboard data. Copy the form data from openrti first.");
+    addLine("bad", "Could not read clipboard data. Copy the form data from rtigram.com first.");
     return;
   }
 
   if (!targetTabId) {
     clear();
-    addLine("warn", "Open the RTI Online form in a tab, then click the OpenRTI icon while that tab is open.");
+    addLine("warn", "Open the RTI Online form in a tab, then click the RTIgram Autofill icon while that tab is open.");
     return;
   }
 
