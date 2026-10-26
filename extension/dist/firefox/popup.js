@@ -4,44 +4,55 @@ const button = document.getElementById("fill");
 const reportEl = document.getElementById("report");
 const api = typeof browser !== "undefined" ? browser : chrome;
 
-function show(html) {
-  reportEl.innerHTML = html;
+function clear() {
+  reportEl.textContent = "";
 }
 
-function escapeHtml(text) {
-  return String(text).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function showText(text) {
+  clear();
+  reportEl.textContent = text;
+}
+
+function addLine(className, text) {
+  const div = document.createElement("div");
+  div.className = className;
+  div.textContent = text;
+  reportEl.appendChild(div);
 }
 
 function renderReport(report) {
-  const filled = report.filled.map((f) => `<div class="ok">✓ ${escapeHtml(f)}</div>`).join("");
-  const skipped = report.skipped.map((s) => `<div class="note">– ${escapeHtml(s)} (empty, skipped)</div>`).join("");
-  const failed = report.failed.map((f) => `<div class="bad">✗ ${escapeHtml(f.field)}: ${escapeHtml(f.reason)}</div>`).join("");
-  show(`${filled}${skipped}${failed}`);
+  clear();
+  report.filled.forEach((f) => addLine("ok", `✓ ${f}`));
+  report.skipped.forEach((s) => addLine("note", `– ${s} (empty, skipped)`));
+  report.failed.forEach((f) => addLine("bad", `✗ ${f.field}: ${f.reason}`));
 }
 
 const targetTabId = Number(new URLSearchParams(window.location.search).get("tab"));
 
 button.addEventListener("click", async () => {
-  show("Reading copied data…");
+  showText("Reading copied data…");
 
   let payload;
   try {
     payload = JSON.parse(await navigator.clipboard.readText());
   } catch (err) {
-    show(`<div class="bad">Could not read clipboard data. Copy the form data from openrti first.</div>`);
+    clear();
+    addLine("bad", "Could not read clipboard data. Copy the form data from openrti first.");
     return;
   }
 
   if (!targetTabId) {
-    show(`<div class="warn">Open the RTI Online form in a tab, then click the OpenRTI icon while that tab is open.</div>`);
+    clear();
+    addLine("warn", "Open the RTI Online form in a tab, then click the OpenRTI icon while that tab is open.");
     return;
   }
 
-  show("Filling the form…");
+  showText("Filling the form…");
   try {
     const report = await api.tabs.sendMessage(targetTabId, { type: "openrti-fill", payload });
     renderReport(report);
   } catch (err) {
-    show(`<div class="bad">Could not reach the RTI Online form. Reload that tab and try again.</div>`);
+    clear();
+    addLine("bad", "Could not reach the RTI Online form. Reload that tab and try again.");
   }
 });
