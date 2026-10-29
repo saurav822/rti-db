@@ -129,6 +129,7 @@ function ResponseTable({ table, t }) {
         </svg>
         {t("detail_download_excel")}
       </button>
+      <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>{t("detail_ai_disclaimer")}</p>
     </div>
   );
 }
@@ -464,7 +465,6 @@ export default function RTIDetail() {
                 </svg>
                 {t("detail_download_pdf")}
               </a>
-              <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>{t("detail_ai_disclaimer")}</p>
             </section>
           )}
 
