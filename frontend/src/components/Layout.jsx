@@ -63,9 +63,6 @@ export default function Layout() {
                   <span style={{ color: "var(--ink)" }}>RTI</span>
                   <span style={{ color: "var(--accent)" }}>gram</span>
                 </span>
-                <span className="text-[var(--ink-3)]" style={{ fontSize: 9, marginTop: 2 }}>
-                  by Charchagram
-                </span>
               </div>
             </NavLink>
 

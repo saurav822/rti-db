@@ -119,11 +119,11 @@ export default function About() {
             <div className="card p-7 flex flex-col gap-5">
               <ContactRow label={t("about_contact_email")} icon="✉">
                 <a
-                  href="mailto:connect.charchagram@gmail.com"
+                  href="mailto:connect.rtigram@gmail.com"
                   className="text-sm font-medium transition-colors"
                   style={{ color: "var(--accent)" }}
                 >
-                  connect.charchagram@gmail.com
+                  connect.rtigram@gmail.com
                 </a>
               </ContactRow>
 
@@ -159,7 +159,7 @@ export default function About() {
                     : "For suggestions, bug reports, or collaboration — reach out over email."}
                 </p>
                 <a
-                  href="mailto:connect.charchagram@gmail.com"
+                  href="mailto:connect.rtigram@gmail.com"
                   className="btn-primary inline-block mt-4 text-sm px-5 py-2"
                 >
                   {lang === "hi" ? "ईमेल भेजें →" : "Send an email →"}
