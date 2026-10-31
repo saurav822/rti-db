@@ -1224,6 +1224,9 @@ export default function DraftRTI() {
                         {lang === "hi" ? "एक्सटेंशन नहीं है?" : "Don't have the extension?"}
                       </a>
                     </p>
+                    <p className="text-xs hindi-text mt-1 text-center font-medium" style={{ color: "var(--ink-3)" }}>
+                      {lang === "hi" ? "एक्सटेंशन Mozilla Firefox के लिए उपलब्ध है" : "Extension available for Mozilla Firefox"}
+                    </p>
                   </div>
                 )}
 
