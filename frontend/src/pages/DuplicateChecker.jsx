@@ -39,6 +39,14 @@ function ScanIcon() {
     </svg>
   );
 }
+function ExtensionIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.5 11H19V7a2 2 0 00-2-2h-4V3.5a2.5 2.5 0 00-5 0V5H4a2 2 0 00-2 2v3.8h1.5a2.7 2.7 0 010 5.4H2V20a2 2 0 002 2h3.8v-1.5a2.7 2.7 0 015.4 0V22H17a2 2 0 002-2v-4h1.5a2.5 2.5 0 000-5z" />
+    </svg>
+  );
+}
+
 function DraftIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--accent)" }}>
@@ -225,11 +233,12 @@ export default function DuplicateChecker() {
       </div>
 
       {/* How it works */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
         {[
           { Icon: PasteIcon,  step: "1", text: t("dup_step1"), delay: "0s"    },
           { Icon: ScanIcon,   step: "2", text: t("dup_step2"), delay: "0.15s" },
           { Icon: DraftIcon,  step: "3", text: t("dup_step3"), delay: "0.3s"  },
+          { Icon: ExtensionIcon, step: "4", text: t("dup_step4"), delay: "0.45s" },
         ].map(({ Icon, step, text: stepText, delay }) => (
           <div
             key={step}
@@ -243,6 +252,28 @@ export default function DuplicateChecker() {
             <p className="text-xs text-[var(--ink-3)] hindi-text leading-snug">{stepText}</p>
           </div>
         ))}
+      </div>
+
+      {/* Extension install steps */}
+      <div className="card p-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div className="min-w-0">
+            <p className="section-label mb-2 hindi-text">{t("ext_howto_title")}</p>
+            <ol className="list-decimal list-inside space-y-1 text-xs text-[var(--ink-3)] hindi-text leading-snug">
+              <li>{t("ext_howto_1")}</li>
+              <li>{t("ext_howto_2")}</li>
+            </ol>
+            <p className="mt-2 text-xs hindi-text" style={{ color: "var(--ink-4)" }}>{t("ext_howto_note")}</p>
+          </div>
+          <a
+            href="https://addons.mozilla.org/en-US/firefox/addon/rtigram-autofill/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary text-sm px-4 py-2 shrink-0 text-center hindi-text"
+          >
+            {t("ext_howto_cta")}
+          </a>
+        </div>
       </div>
 
       {/* Uniqueness Meter */}
