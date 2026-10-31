@@ -397,6 +397,7 @@ export default function Profile() {
           ))}
         </div>
       ) : uploads.length > 0 ? (
+        <>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {uploads.map((entry) => <RTICard key={entry.id} entry={entry} />)}
         </div>
@@ -407,6 +408,7 @@ export default function Profile() {
             </button>
           </div>
         )}
+        </>
       ) : (
         <div className="text-center py-12 text-[var(--ink-4)]">
           <p>No RTIs uploaded yet.</p>
