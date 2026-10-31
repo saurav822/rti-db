@@ -196,6 +196,8 @@ function ContactCard({ contact, lang }) {
 
 // ── Main component ────────────────────────────────────────────────────────
 
+const UPLOADS_PAGE_SIZE = 12;
+
 export default function Profile() {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
@@ -204,6 +206,8 @@ export default function Profile() {
 
   const [uploads, setUploads] = useState([]);
   const [loadingUploads, setLoadingUploads] = useState(false);
+  const [loadingMoreUploads, setLoadingMoreUploads] = useState(false);
+  const [uploadsTotal, setUploadsTotal] = useState(0);
   const [drafts, setDrafts] = useState([]);
   const [loadingDrafts, setLoadingDrafts] = useState(false);
   const [draftsExpanded, setDraftsExpanded] = useState(true);
@@ -213,17 +217,32 @@ export default function Profile() {
     if (!loading && !user) navigate("/login");
   }, [user, loading, navigate]);
 
+  function fetchUploadsPage(from) {
+    return supabase
+      .from("rti_entries")
+      .select("id, title, department, state, subject, response_status, tags, date_filed, language, upvotes, view_count, created_at", { count: "exact" })
+      .eq("uploaded_by", user.id)
+      .order("created_at", { ascending: false })
+      .range(from, from + UPLOADS_PAGE_SIZE - 1);
+  }
+
+  function loadMoreUploads() {
+    setLoadingMoreUploads(true);
+    fetchUploadsPage(uploads.length)
+      .then(({ data }) => setUploads((prev) => [...prev, ...(data || [])]))
+      .catch(console.error)
+      .finally(() => setLoadingMoreUploads(false));
+  }
+
   useEffect(() => {
     if (!user) return;
 
     setLoadingUploads(true);
-    supabase
-      .from("rti_entries")
-      .select("id, title, department, state, subject, response_status, tags, date_filed, language, upvotes, view_count, created_at")
-      .eq("uploaded_by", user.id)
-      .order("created_at", { ascending: false })
-      .limit(12)
-      .then(({ data }) => setUploads(data || []))
+    fetchUploadsPage(0)
+      .then(({ data, count }) => {
+        setUploads(data || []);
+        setUploadsTotal(count ?? (data || []).length);
+      })
       .catch(console.error)
       .finally(() => setLoadingUploads(false));
 
@@ -367,7 +386,7 @@ export default function Profile() {
       )}
 
       {/* ── My Uploads ── */}
-      <h2 className="text-base font-semibold text-[var(--ink)] mb-4">{t("profile_my_uploads")} ({uploads.length})</h2>
+      <h2 className="text-base font-semibold text-[var(--ink)] mb-4">{t("profile_my_uploads")} ({uploadsTotal})</h2>
       {loadingUploads ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
@@ -381,6 +400,13 @@ export default function Profile() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {uploads.map((entry) => <RTICard key={entry.id} entry={entry} />)}
         </div>
+        {uploads.length < uploadsTotal && (
+          <div className="text-center mt-6">
+            <button onClick={loadMoreUploads} disabled={loadingMoreUploads} className="btn-secondary px-6 py-2 text-sm">
+              {loadingMoreUploads ? "..." : t("browse_load_more")}
+            </button>
+          </div>
+        )}
       ) : (
         <div className="text-center py-12 text-[var(--ink-4)]">
           <p>No RTIs uploaded yet.</p>
