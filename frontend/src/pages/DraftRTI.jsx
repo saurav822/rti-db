@@ -1216,7 +1216,7 @@ export default function DraftRTI() {
                         : "After you log in and reach the filing page, a popup will appear — click \"OK\" to auto-fill."}
                       {" "}
                       <a
-                        href="https://github.com/saurav822/rti-db/tree/main/extension"
+                        href="/file-rti"
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ color: "var(--accent)", textDecoration: "underline" }}
@@ -1225,7 +1225,7 @@ export default function DraftRTI() {
                       </a>
                     </p>
                     <p className="text-xs hindi-text mt-1 text-center font-medium" style={{ color: "var(--ink-3)" }}>
-                      {lang === "hi" ? "एक्सटेंशन Mozilla Firefox के लिए उपलब्ध है" : "Extension available for Mozilla Firefox"}
+                      {lang === "hi" ? "एक्सटेंशन Google Chrome और Mozilla Firefox के लिए उपलब्ध है" : "Extension available for Google Chrome and Mozilla Firefox"}
                     </p>
                   </div>
                 )}

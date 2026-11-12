@@ -256,24 +256,39 @@ export default function DuplicateChecker() {
 
       {/* Extension install steps */}
       <div className="card p-4 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-          <div className="min-w-0">
-            <p className="section-label mb-2 hindi-text">{t("ext_howto_title")}</p>
-            <ol className="list-decimal list-inside space-y-1 text-xs text-[var(--ink-3)] hindi-text leading-snug">
-              <li>{t("ext_howto_1")}</li>
-              <li>{t("ext_howto_2")}</li>
-            </ol>
-            <p className="mt-2 text-xs hindi-text" style={{ color: "var(--ink-4)" }}>{t("ext_howto_note")}</p>
-          </div>
-          <a
-            href="https://addons.mozilla.org/en-US/firefox/addon/rtigram-autofill/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary text-sm px-4 py-2 shrink-0 text-center hindi-text"
-          >
-            {t("ext_howto_cta")}
-          </a>
+        <p className="section-label mb-3 hindi-text">{t("ext_howto_title")}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[
+            {
+              label: t("ext_chrome_label"),
+              steps: [t("ext_chrome_1"), t("ext_chrome_2")],
+              href: "https://chromewebstore.google.com/detail/rtigram-autofill/ojadpklefpebgamjpkpgcaglkpndablb",
+              cta: t("ext_chrome_cta"),
+            },
+            {
+              label: t("ext_firefox_label"),
+              steps: [t("ext_howto_1"), t("ext_howto_2")],
+              href: "https://addons.mozilla.org/en-US/firefox/addon/rtigram-autofill/",
+              cta: t("ext_howto_cta"),
+            },
+          ].map((b) => (
+            <div key={b.label} className="flex flex-col gap-2 min-w-0">
+              <p className="text-sm font-semibold" style={{ color: "var(--ink-2)" }}>{b.label}</p>
+              <ol className="list-decimal list-inside space-y-1 text-xs text-[var(--ink-3)] hindi-text leading-snug">
+                {b.steps.map((s) => <li key={s}>{s}</li>)}
+              </ol>
+              <a
+                href={b.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary text-sm px-4 py-2 mt-auto text-center hindi-text"
+              >
+                {b.cta}
+              </a>
+            </div>
+          ))}
         </div>
+        <p className="mt-3 text-xs hindi-text" style={{ color: "var(--ink-4)" }}>{t("ext_howto_note")}</p>
       </div>
 
       {/* Uniqueness Meter */}
