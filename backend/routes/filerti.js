@@ -51,7 +51,7 @@ router.get("/file-rti/authorities", (req, res) => {
 // ---------------------------------------------------------------------------
 router.post("/file-rti/clarify", async (req, res) => {
   try {
-    const { query } = req.body;
+    const { query, language } = req.body;
     if (!query || query.trim().length < 10) {
       return res.status(400).json({ error: "Query too short (minimum 10 characters)" });
     }
@@ -64,7 +64,7 @@ router.post("/file-rti/clarify", async (req, res) => {
       });
     }
 
-    const result = await generateClarifyingQuestions(query.trim());
+    const result = await generateClarifyingQuestions(query.trim(), language);
     res.json(result);
   } catch (err) {
     console.error("Clarify error:", err);
@@ -87,7 +87,9 @@ router.post("/file-rti/generate", async (req, res) => {
     if (!quota.allowed) {
       return res.status(200).json({
         quota_exceeded: true,
-        message: "AI quota reached for today. Please try again tomorrow.",
+        message: language === "hi"
+          ? "आज का AI कोटा समाप्त हो गया। कल पुनः प्रयास करें।"
+          : "AI quota reached for today. Please try again tomorrow.",
       });
     }
 

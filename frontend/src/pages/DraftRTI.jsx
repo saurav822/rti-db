@@ -93,11 +93,12 @@ function countWords(str) {
   return str ? str.trim().split(/\s+/).filter(Boolean).length : 0;
 }
 
-function buildApplicantBlock(template, { name, phone, address, state, pincode }) {
+function buildApplicantBlock(template, { name, phone, email, address, state, pincode }) {
   if (!template) return "";
   let block = template;
   const today = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" });
-  if (name) block = block.replace("[Your Full Name]", name);
+  // Hindi drafts use Devanagari placeholders; the email itself always stays in English letters
+  if (name) block = block.replace("[Your Full Name]", name).replace("[आपका पूरा नाम]", name);
   if (address) {
     let fullAddress = address;
     if (state) fullAddress += `, ${state}`;
@@ -105,10 +106,13 @@ function buildApplicantBlock(template, { name, phone, address, state, pincode })
     block = block
       .replace("[Complete Postal Address]", fullAddress)
       .replace("[Complete Address]", fullAddress)
+      .replace("[पूरा डाक पता]", fullAddress)
       .replace("[City - PIN Code]", pincode || "")
+      .replace(/\[शहर - पिन कोड\]\n?/, "")
       .replace("[City, State - PIN Code]", "");
   }
-  if (phone) block = block.replace("[Phone Number]", phone);
+  if (phone) block = block.replace("[Phone Number]", phone).replace("[फ़ोन नंबर]", phone);
+  block = email ? block.replace("[ईमेल]", email) : block.replace(/^.*\[ईमेल\].*\n?/m, "");
   block = block.replace("[DD/MM/YYYY]", today);
   return block.replace(/\n{3,}/g, "\n\n").trim();
 }
@@ -216,6 +220,7 @@ export default function DraftRTI() {
         setEditedApplicant(buildApplicantBlock(d.draft_applicant || "", {
           name: d.applicant_name || "",
           phone: d.applicant_phone || "",
+          email: d.applicant_email || "",
           gender: d.applicant_gender || "",
           state: d.applicant_state || "",
           pincode: d.applicant_pincode || "",
@@ -240,6 +245,7 @@ export default function DraftRTI() {
           pincode: d.applicant_pincode || "",
           address: d.applicant_address || "",
         });
+        setDraftLang(d.language === "hi" ? "hi" : "en");
         // Minimal draft object for portal display
         setDraft({
           department: d.detected_dept,
@@ -286,14 +292,14 @@ export default function DraftRTI() {
     setDraftPhase("loading_questions");
     setDraftError("");
     try {
-      const result = await getRTIClarifyingQuestions(query.trim());
+      const result = await getRTIClarifyingQuestions(query.trim(), lang === "hi" ? "hi" : "en");
       if (result.quota_exceeded) {
         setDraftError(result.message);
         setDraftPhase("idle");
         return;
       }
       setClarifyingQs(result.questions || []);
-      setDraftLang(result.language || "en");
+      setDraftLang(lang === "hi" ? "hi" : (result.language || "en"));
       setAnswers({});
       setDraftPhase("asking");
     } catch {
@@ -329,7 +335,8 @@ export default function DraftRTI() {
   // Applicant details are only required for Central Government filings,
   // since that's the only flow the browser extension autofills — for state
   // portals they stay optional, as before.
-  const applicantRequired = draft?.detected_state === "Central Government" || !draft?.detected_state;
+  // Hindi drafts are filed manually (no extension), so details stay optional there too.
+  const applicantRequired = draftLang !== "hi" && (draft?.detected_state === "Central Government" || !draft?.detected_state);
   const applicantDetailsComplete = !applicantRequired || [
     applicant.name, applicant.phone, applicant.email, applicant.gender,
     applicant.state, applicant.pincode, applicant.address,
@@ -552,7 +559,7 @@ export default function DraftRTI() {
     const digits = rawPhone.replace(/\D/g, "");
     const waPhone = digits.length === 10 ? `91${digits}` : digits;
 
-    const dept = draft?.department || "";
+    const dept = (draftLang === "hi" && draft?.department_hi) || draft?.department || "";
     const state = draft?.detected_state || "";
     const fileRtiUrl = "https://www.rtigram.com/file-rti";
     const filedDate = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
@@ -609,6 +616,13 @@ export default function DraftRTI() {
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 2000);
   }
+
+  // Hindi names for the Central Govt ministry/authority (from portal_authorities.json).
+  // Many entries have no Hindi name on rtionline.gov.in — fall back to English.
+  const isHiDraft = draftLang === "hi";
+  const matchedMinistry = allMinistries.find(m => m.ministry_id === authority?.ministry_id);
+  const matchedAuthority = matchedMinistry?.authorities?.find(a => a.id === authority?.authority_id);
+  const authorityDisplay = (isHiDraft && matchedAuthority?.label_hi) || authority?.authority_label;
 
   // ── Render ──────────────────────────────────────────────────────────────
 
@@ -813,7 +827,7 @@ export default function DraftRTI() {
             <div className="flex flex-wrap gap-2">
               {draft.department && (
                 <span className="rounded-full px-3 py-1 text-xs font-medium hindi-text" style={{ background: "var(--accent-glass)", color: "var(--accent)", border: "1px solid rgba(184,134,11,0.2)" }}>
-                  {draft.department}
+                  {(draftLang === "hi" && draft.department_hi) || draft.department}
                 </span>
               )}
               <span className="rounded-full px-3 py-1 text-xs font-medium" style={{ background: "var(--glass)", border: "1px solid var(--rule-strong)", color: "var(--ink-3)" }}>
@@ -866,7 +880,7 @@ export default function DraftRTI() {
                     <option value={authority.ministry_id}>{authority.ministry_label}</option>
                   )}
                   {allMinistries.map(m => (
-                    <option key={m.ministry_id} value={m.ministry_id}>{m.ministry_label}</option>
+                    <option key={m.ministry_id} value={m.ministry_id}>{(isHiDraft && m.ministry_label_hi) || m.ministry_label}</option>
                   ))}
                 </select>
               </div>
@@ -897,7 +911,7 @@ export default function DraftRTI() {
                         </option>
                       )}
                       {auths.map(a => (
-                        <option key={a.id} value={a.id}>{a.label}</option>
+                        <option key={a.id} value={a.id}>{(isHiDraft && a.label_hi) || a.label}</option>
                       ))}
                     </select>
                   </div>
@@ -1072,10 +1086,10 @@ export default function DraftRTI() {
             <div className="card p-5">
               <div className="flex items-center justify-between mb-3">
                 <label className="section-label">{t("file_dept_field_label")}</label>
-                <CopyBtn text={draft.department} field="department" copiedField={copiedField} onCopy={copyToClipboard} t={t} />
+                <CopyBtn text={(draftLang === "hi" && draft.department_hi) || draft.department} field="department" copiedField={copiedField} onCopy={copyToClipboard} t={t} />
               </div>
               <div className="rounded-[var(--r-sm)] px-4 py-3 hindi-text text-sm font-medium" style={{ background: "var(--glass)", border: "1px solid var(--rule-strong)", color: "var(--ink)" }}>
-                {draft.department}
+                {(draftLang === "hi" && draft.department_hi) || draft.department}
               </div>
             </div>
           )}
@@ -1085,10 +1099,10 @@ export default function DraftRTI() {
             <div className="card p-5">
               <div className="flex items-center justify-between mb-3">
                 <label className="section-label">{t("file_authority_field_label")}</label>
-                <CopyBtn text={authority.authority_label} field="public_authority" copiedField={copiedField} onCopy={copyToClipboard} t={t} />
+                <CopyBtn text={authorityDisplay} field="public_authority" copiedField={copiedField} onCopy={copyToClipboard} t={t} />
               </div>
               <div className="rounded-[var(--r-sm)] px-4 py-3 hindi-text text-sm font-medium" style={{ background: "var(--glass)", border: "1px solid var(--rule-strong)", color: "var(--ink)" }}>
-                {authority.authority_label}
+                {authorityDisplay}
               </div>
             </div>
           )}
@@ -1174,10 +1188,14 @@ export default function DraftRTI() {
             const isCentralGovt = draft.detected_state === "Central Government"
               || !draft.detected_state   // null/empty → assume central govt
               || draft.portal?.portal_url?.includes("rtionline.gov.in");
-            const portalUrl = draft.portal?.portal_url || (isCentralGovt ? "https://rtionline.gov.in/guidelines.php?request&&pageid=eccbc87e4b5ce2fe28308fd9f2a7baf3" : null);
+            const portalUrl = (isCentralGovt && draftLang === "hi")
+              ? "https://rtionline.gov.in/Hguidelines.php?request&&pageid=8f14e45fceea167a5a36dedd4bea2543"
+              : draft.portal?.portal_url || (isCentralGovt ? "https://rtionline.gov.in/guidelines.php?request&&pageid=eccbc87e4b5ce2fe28308fd9f2a7baf3" : null);
             const autofillAllowed = (import.meta.env.VITE_AUTOFILL_ALLOWED_EMAILS || "")
               .split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
-            const showAuto = !!savedDraftId && (
+            // Hindi Central Govt drafts are filed manually (link + copy fields), like state portals
+            const hindiBlocksPortal = draftLang === "hi" && isCentralGovt;
+            const showAuto = !hindiBlocksPortal && !!savedDraftId && (
               autofillAllowed.length === 0 ||
               autofillAllowed.includes((user?.email || "").toLowerCase())
             );
@@ -1185,7 +1203,7 @@ export default function DraftRTI() {
               <div className="card p-5">
                 <p className="section-label mb-3">{t("file_portal_label")}</p>
 
-                {isCentralGovt && portalUrl && (
+                {isCentralGovt && portalUrl && !hindiBlocksPortal && (
                   <div className="mb-3">
                     <button
                       onClick={async () => {

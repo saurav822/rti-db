@@ -169,7 +169,7 @@ export async function checkDuplicates(questionText, supabase) {
 // Generate 2-3 clarifying questions for an RTI query
 // Returns { questions: string[], language: "en"|"hi" }
 // ---------------------------------------------------------------------------
-export async function generateClarifyingQuestions(query) {
+export async function generateClarifyingQuestions(query, language) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = `You are an expert RTI (Right to Information Act 2005, India) legal assistant.
@@ -178,7 +178,13 @@ A citizen wants to file an RTI application. Their query: "${query}"
 Generate exactly 2 to 3 focused clarifying questions to make this RTI legally complete.
 Focus on identifying: specific department/ministry, time period or date range, geographic scope (state/district/central), specific data points or documents needed.
 
-Detect the query language and respond in the SAME language (Hindi Devanagari if query is in Hindi, English if English or mixed).
+${
+    language === "hi"
+      ? "Write every question in Hindi (Devanagari script), even if the query is in English."
+      : language === "en"
+        ? "Write every question in English, even if the query is in Hindi."
+        : "Detect the query language and respond in the SAME language (Hindi Devanagari if query is in Hindi, English if English or mixed)."
+  }
 
 Return ONLY this JSON — no markdown, no explanation:
 {"questions": ["question 1", "question 2", "question 3"], "language": "en"}
@@ -187,7 +193,9 @@ language field: "en" for English, "hi" for Hindi.`;
 
   const result = await geminiWithRetry(() => model.generateContent(prompt));
   const text = result.response.text().replace(/```json/g, "").replace(/```/g, "").trim();
-  return JSON.parse(text);
+  const parsed = JSON.parse(text);
+  if (language === "hi" || language === "en") parsed.language = language;
+  return parsed;
 }
 
 // ---------------------------------------------------------------------------
@@ -216,10 +224,7 @@ export async function generateRTIDraft(query, clarifications, language) {
     .map((c) => `Q: ${c.question}\nA: ${c.answer}`)
     .join("\n\n");
 
-  const fullAppLang =
-    language === "hi"
-      ? "Write full_application and applicant_block in formal Hindi (Devanagari script)."
-      : "Write in formal English throughout.";
+  const isHindi = language === "hi";
 
   const VALID_STATES = [
     "Central Government","Andhra Pradesh","Arunachal Pradesh","Assam","Bihar",
@@ -233,12 +238,15 @@ export async function generateRTIDraft(query, clarifications, language) {
   ].join(", ");
 
   const prompt = `You are an expert RTI (Right to Information Act 2005, India) filing assistant.
-${fullAppLang}
-
 Citizen's RTI query: "${query}"
 ${clarStr ? `\nAdditional context from citizen:\n${clarStr}` : ""}
 
-CRITICAL — Portal character restriction for rtionline.gov.in:
+${
+  isHindi
+    ? `LANGUAGE — the citizen chose Hindi. Write "subject", "information_sought", "full_application", "applicant_block", "department_hi" and "tip" in formal Hindi (Devanagari script).
+Use Devanagari numerals or plain digits consistently, and numbered lists (1. 2. 3.) not bullet points. Keep legal references as in the Act (Section 6(1), Section 7(1)).
+Do NOT apply any ASCII-only restriction — Hindi characters are expected in every field.`
+    : `CRITICAL — Portal character restriction for rtionline.gov.in:
 The fields "subject" and "information_sought" are pasted DIRECTLY into the government portal which enforces this strict rule:
   Allowed characters ONLY: A-Z  a-z  0-9  space  , . - _ ( ) / @ : & ? \\ %
   REJECTED characters include: Devanagari/Hindi script, smart quotes (“”‘’), em-dash (—), en-dash (–), bullet points (•), asterisks (*), semicolons (;), exclamation marks (!), apostrophes ('), and any Unicode outside the allowed set.
@@ -248,9 +256,20 @@ Rules for "subject" and "information_sought":
   - Use numbered lists (1. 2. 3.) not bullet points.
   - Replace apostrophes with nothing (e.g. "don't" -> "do not", "government's" -> "government").
   - Use Rs. not rupee symbol.
-  - Use hyphen (-) not em-dash or en-dash.
+  - Use hyphen (-) not em-dash or en-dash.`
+}
 
-Generate a complete RTI application. Return ONLY this JSON (no markdown, no extra text):
+${isHindi ? `Generate a complete RTI application. Return ONLY this JSON (no markdown, no extra text):
+{
+  "department": "Full official ENGLISH name of the department/ministry/body this RTI is addressed to (kept in English for internal matching)",
+  "department_hi": "The same department/ministry/body name in Hindi (Devanagari)",
+  "subject": "Concise Hindi subject stating what information is sought. Do NOT prefix with आरटीआई आवेदन: — start directly with the topic. Under 15 words.",
+  "information_sought": "Start with the sentence 'मैं सूचना का अधिकार अधिनियम, 2005 के अंतर्गत निम्नलिखित जानकारी चाहता/चाहती हूँ:' followed by a blank line, then a numbered list of specific information/documents requested. No salutation, no fee mention. Use \\n between points. ALWAYS in Hindi.",
+  "full_application": "Complete formal RTI letter in Hindi. Use \\n for line breaks. Structure: 1. सेवा में,\\nजन सूचना अधिकारी,\\n[विभाग का नाम],\\n[राज्य/केंद्र] 2. विषय: [same subject as above] 3. महोदय/महोदया, 4. सूचना का अधिकार अधिनियम, 2005 की धारा 6(1) के अंतर्गत मैं निम्नलिखित जानकारी चाहता/चाहती हूँ: 5. Same numbered points as information_sought 6. कृपया उपरोक्त जानकारी अधिनियम की धारा 7(1) के अनुसार 30 दिनों के भीतर उपलब्ध कराएँ। 7. मैं आवेदन शुल्क रु. 10/- [IPO/DD/ऑनलाइन भुगतान] द्वारा संलग्न कर रहा/रही हूँ। Do NOT include applicant name or address.",
+  "applicant_block": "भवदीय,\\n[आपका पूरा नाम]\\n[पूरा डाक पता]\\n[शहर - पिन कोड]\\nफ़ोन: [फ़ोन नंबर]\\nईमेल: [ईमेल]\\nदिनांक: [DD/MM/YYYY]",
+  "detected_state": "Exactly one of (English names exactly as listed): ${VALID_STATES}. Use Central Government for national ministries, commissions, central boards, PSUs.",
+  "tip": "One specific filing tip for this RTI, in Hindi. Return null if not applicable."
+}` : `Generate a complete RTI application. Return ONLY this JSON (no markdown, no extra text):
 {
   "department": "Full official name of the department/ministry/body this RTI is addressed to",
   "subject": "Concise English subject stating what information is sought. Do NOT prefix with RTI Application: or RTI: — start directly with the topic. Under 15 words. Use ONLY allowed portal characters. Example: Information on MGNREGA wage payments in Sitapur district for FY 2023-24",
@@ -259,15 +278,19 @@ Generate a complete RTI application. Return ONLY this JSON (no markdown, no extr
   "applicant_block": "Yours sincerely,\\n[Your Full Name]\\n[Complete Postal Address]\\n[City - PIN Code]\\nPhone: [Phone Number]\\nDate: [DD/MM/YYYY]",
   "detected_state": "Exactly one of: ${VALID_STATES}. Use Central Government for national ministries, commissions, central boards, PSUs.",
   "tip": "One specific filing tip for this RTI in the citizen query language. Return null if not applicable."
-}`;
+}`}`;
 
   const result = await geminiWithRetry(() => model.generateContent(prompt));
   const text = result.response.text().replace(/```json/g, "").replace(/```/g, "").trim();
   const parsed = JSON.parse(text);
 
-  // Safety net: strip any characters the portal rejects, even if AI slipped through
-  parsed.subject          = sanitizePortalText(parsed.subject);
-  parsed.information_sought = sanitizePortalText(parsed.information_sought);
+  // Safety net: strip any characters the portal rejects, even if AI slipped through.
+  // Hindi drafts are intentionally left as Devanagari — the central portal can't take
+  // them, so the UI withholds autofill for those instead.
+  if (!isHindi) {
+    parsed.subject          = sanitizePortalText(parsed.subject);
+    parsed.information_sought = sanitizePortalText(parsed.information_sought);
+  }
 
   return parsed;
 }

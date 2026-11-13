@@ -691,7 +691,7 @@ export const translations = {
     file_name_label: "पूरा नाम",
     file_phone_label: "फ़ोन नंबर",
     file_email_label: "ईमेल",
-    file_email_hint: "RTI पोर्टल पर अपनी लॉगिन आईडी जैसी ही ईमेल आईडी दर्ज करें",
+    file_email_hint: "RTI पोर्टल पर अपनी लॉगिन आईडी जैसी ही ईमेल आईडी दर्ज करें (ईमेल केवल अंग्रेज़ी अक्षरों में लिखें)",
     file_gender_label: "लिंग",
     file_gender_placeholder: "लिंग चुनें",
     file_state_label: "राज्य / केंद्रशासित प्रदेश",

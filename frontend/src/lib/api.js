@@ -176,11 +176,11 @@ export async function getDepartmentByName(name, state) {
 // ---------------------------------------------------------------------------
 // File RTI — Clarifying questions
 // ---------------------------------------------------------------------------
-export async function getRTIClarifyingQuestions(query) {
+export async function getRTIClarifyingQuestions(query, language) {
   const res = await fetch(`${BASE}/file-rti/clarify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({ query, language }),
   });
   return handleResponse(res);
 }
