@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import RTICard from "../components/RTICard.jsx";
 import HindiText from "../components/HindiText.jsx";
 import TagPill from "../components/TagPill.jsx";
@@ -31,15 +30,6 @@ const PLACEHOLDERS = {
 };
 
 const STAT_LABELS = ["01 — TOTAL", "02 — DEPTS", "03 — STATES"];
-
-const tooltipStyle = {
-  background: "var(--surface)",
-  border: "1px solid var(--rule)",
-  color: "var(--ink)",
-  borderRadius: "var(--r-sm)",
-  fontFamily: "DM Mono, monospace",
-  fontSize: 11,
-};
 
 export default function Home() {
   const navigate = useNavigate();
@@ -331,18 +321,13 @@ export default function Home() {
       {/* ── CHARTS ── */}
       {stats && (() => {
         const depts = stats.top_departments || [];
-        const monthly = stats.monthly_filings || [];
         const maxCount = depts[0]?.count || 1;
-        const latest = monthly[monthly.length - 1];
-        const prev = monthly[monthly.length - 2];
-        const growth = prev?.count > 0 ? Math.round(((latest.count - prev.count) / prev.count) * 100) : null;
         return (
           <div
-            className="grid grid-cols-1 lg:grid-cols-3"
             style={{ borderBottom: "1px solid var(--rule-strong)" }}
           >
             {/* Ranked department list */}
-            <div className="lg:col-span-2 px-6 sm:px-8 py-7" style={{ borderRight: "1px solid var(--rule-strong)" }}>
+            <div className="px-6 sm:px-8 py-7">
               <div className="pb-4 mb-2" style={{ borderBottom: "1px solid var(--rule)" }}>
                 <span className="section-label">{t("home_chart_top_depts")}</span>
               </div>
@@ -360,41 +345,6 @@ export default function Home() {
                     </div>
                   );
                 })}
-              </div>
-            </div>
-
-            {/* Monthly trend + sparkline */}
-            <div className="px-6 sm:px-8 py-7 flex flex-col">
-              <div className="pb-4 mb-5" style={{ borderBottom: "1px solid var(--rule)" }}>
-                <span className="section-label">{t("home_chart_monthly")}</span>
-              </div>
-              {latest && (
-                <div className="flex flex-col items-center text-center mb-6">
-                  <span className="mono-text" style={{ fontSize: 48, fontWeight: 700, color: "var(--accent)", lineHeight: 1 }}>{latest.count}</span>
-                  <span className="text-xs mt-1.5" style={{ color: "var(--ink-3)" }}>{lang === "hi" ? "इस माह RTI" : "RTIs this month"}</span>
-                  {growth !== null && (
-                    <span className="mono-text text-xs mt-2 px-2 py-0.5 rounded-full" style={{
-                      background: growth >= 0 ? "var(--green-bg)" : "var(--red-bg)",
-                      color: growth >= 0 ? "var(--green)" : "var(--red)",
-                    }}>
-                      {growth >= 0 ? "↑" : "↓"} {Math.abs(growth)}% {lang === "hi" ? "पिछले माह से" : "vs prev month"}
-                    </span>
-                  )}
-                </div>
-              )}
-              <div className="flex-1 min-h-0" style={{ minHeight: 80 }}>
-                <ResponsiveContainer width="100%" height={90}>
-                  <LineChart data={monthly} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
-                    <Tooltip formatter={(v) => [v, lang === "hi" ? "आवेदन" : "Filings"]} contentStyle={tooltipStyle} />
-                    <Line type="monotone" dataKey="count" stroke="var(--accent)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "var(--accent)" }} />
-                  </LineChart>
-                </ResponsiveContainer>
-                <div className="flex justify-between mt-1">
-                  {monthly.length > 0 && <>
-                    <span className="mono-text" style={{ fontSize: 9, color: "var(--ink-4)" }}>{monthly[0]?.month}</span>
-                    <span className="mono-text" style={{ fontSize: 9, color: "var(--ink-4)" }}>{monthly[monthly.length - 1]?.month}</span>
-                  </>}
-                </div>
               </div>
             </div>
           </div>
