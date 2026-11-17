@@ -57,8 +57,11 @@ export default function Home() {
     if (query.trim()) handleSearch(query.trim(), searchMode);
   }
 
+  // Total RTIs is intentionally a fixed value for now (not the live count).
+  // To go back to the real count use: stats.total_entries
+  const DISPLAY_TOTAL_RTIS = 3914;
   const statCells = stats ? [
-    { idx: STAT_LABELS[0], num: stats.total_entries?.toLocaleString("en-IN"), lbl: t("home_total_rtis") },
+    { idx: STAT_LABELS[0], num: DISPLAY_TOTAL_RTIS.toLocaleString("en-IN"), lbl: t("home_total_rtis") },
     { idx: STAT_LABELS[1], num: stats.departments_count, lbl: t("home_departments") },
     { idx: STAT_LABELS[2], num: stats.states_count, lbl: t("home_states") },
   ] : null;
